@@ -37,12 +37,12 @@ export default function RegisterPage({ onSwitchMode }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #f4faf0 0%, #e7f5e4 45%, #d0e8cc 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '28px 16px' }}>
-      <div style={{ maxWidth: 560, width: '100%', background: '#fff', borderRadius: 28, padding: '36px 38px', boxShadow: '0 30px 100px rgba(0,0,0,0.1)' }}>
+    <div style={{ minHeight: '100vh', background: '#091009', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '28px 16px' }}>
+      <div style={{ maxWidth: 560, width: '100%', background: '#0f231a', borderRadius: 28, padding: '36px 38px', boxShadow: '0 30px 100px rgba(0,0,0,0.25)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 28 }}>
           <Logo size={72} />
           <div style={{ textAlign: 'center' }}>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: '#1b5e20' }}>Farmer Registration</h1>
+            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: '#e6f6ea' }}>Farmer Registration</h1>
           </div>
         </div>
 
@@ -59,7 +59,7 @@ export default function RegisterPage({ onSwitchMode }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
             <Field label="District *">
-              <select value={form.district} onChange={update('district')} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, border: '1px solid #dde4db', fontSize: 14, background: '#f7faf5' }}>
+              <select value={form.district} onChange={update('district')} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, border: '1px solid #2f4d3c', fontSize: 14, background: '#122916', color: '#e6f6ea' }}>
                 <option value="">Select district</option>
                 {DISTRICTS.map((district) => <option key={district} value={district}>{district}</option>)}
               </select>

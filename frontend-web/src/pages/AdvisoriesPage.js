@@ -71,13 +71,13 @@ export default function AdvisoriesPage() {
   const columns = [
     { label: 'Crop', render: (a) => <Chip color="green">{a.crop}</Chip> },
     { label: 'Activity', render: (a) => <strong>{a.activity}</strong> },
-    { label: 'Description', render: (a) => <span style={{ fontSize: 12, color: '#555', display: 'block', maxWidth: 220 }}>{a.description}</span> },
+    { label: 'Description', render: (a) => <span style={{ fontSize: 12, color: '#cfd9c8', display: 'block', maxWidth: 220 }}>{a.description}</span> },
     { label: 'Date', render: (a) => {
         const diff = Math.ceil((new Date(a.recommendedDate) - now) / (1000*60*60*24));
         const color = diff < 0 ? '#aaa' : diff <= 3 ? '#e53935' : diff <= 7 ? '#fb8c00' : '#2e7d32';
         return <div><div style={{ fontSize: 12 }}>{fmt(a.recommendedDate)}</div><div style={{ fontSize: 11, color }}>{diff < 0 ? `${Math.abs(diff)}d ago` : diff === 0 ? 'Today' : `In ${diff}d`}</div></div>;
     }},
-    { label: 'Season', render: (a) => <span style={{ fontSize: 11, color: '#aaa' }}>{a.season}</span> },
+    { label: 'Season', render: (a) => <span style={{ fontSize: 11, color: '#9fbfa8' }}>{a.season}</span> },
     {
       label: 'Actions',
       render: (a) => (
@@ -101,7 +101,7 @@ export default function AdvisoriesPage() {
         }
       />
 
-      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#aaa' }}>Loading...</div>
+      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#9fbfa8' }}>Loading...</div>
         : <Table columns={columns} rows={filtered} empty="No advisories found" />}
 
       {/* Add/Edit Modal */}
@@ -134,7 +134,7 @@ export default function AdvisoriesPage() {
           <Field label="Detailed Instructions">
             <Textarea value={form.instructions} onChange={upd('instructions')} placeholder="Step-by-step instructions for this activity..." rows={4} />
           </Field>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #eee' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : editing ? 'Update Advisory' : 'Create Advisory'}</Button>
           </div>

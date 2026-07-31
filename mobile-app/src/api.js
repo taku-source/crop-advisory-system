@@ -1,7 +1,9 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://YOUR_SERVER_IP:5000/api'; // Change to your server URL
+// Default to Android emulator loopback IP. Change to your server IP when testing on device.
+const BASE_URL = 'http://10.0.2.2:5000/api'; // For Android emulator
+// Use 'http://localhost:5000/api' for local web tests, or set to your machine IP for real devices
 
 const api = axios.create({ baseURL: BASE_URL });
 

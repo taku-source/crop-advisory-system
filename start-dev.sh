@@ -29,7 +29,7 @@ BACKEND_PID=$!
 # 2. Admin dashboard
 echo ""
 echo "📦  Installing admin dashboard dependencies..."
-cd ../frontend-admin && npm install
+cd ../frontend-web && npm install
 
 echo ""
 echo "🖥️   Starting admin dashboard on port 3000..."

@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import Logo from './src/components/Logo';
 import LoginScreen    from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import DashboardScreen         from './src/screens/DashboardScreen';
@@ -56,7 +57,7 @@ function RootNavigator() {
   const { user, loading } = useAuth();
   if (loading) return (
     <View style={{ flex:1, justifyContent:'center', alignItems:'center', backgroundColor:'#2e7d32' }}>
-      <Text style={{ fontSize:64 }}>🌽</Text>
+      <Logo size={140} />
       <ActivityIndicator size="large" color="#fff" style={{ marginTop:24 }} />
       <Text style={{ color:'#a5d6a7', marginTop:14, fontSize:14 }}>Crop Advisory System</Text>
     </View>

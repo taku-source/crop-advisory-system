@@ -75,8 +75,8 @@ export default function DiseasesPage() {
       label: 'Symptoms',
       render: (d) => (
         <div>
-          {(d.symptoms || []).slice(0, 3).map((s, i) => <div key={i} style={{ fontSize: 11, color: '#666' }}>• {s}</div>)}
-          {d.symptoms?.length > 3 && <div style={{ fontSize: 11, color: '#aaa' }}>+{d.symptoms.length - 3} more</div>}
+          {(d.symptoms || []).slice(0, 3).map((s, i) => <div key={i} style={{ fontSize: 11, color: '#cfd9c8' }}>• {s}</div>)}
+          {d.symptoms?.length > 3 && <div style={{ fontSize: 11, color: '#9fbfa8' }}>+{d.symptoms.length - 3} more</div>}
         </div>
       ),
     },
@@ -108,13 +108,13 @@ export default function DiseasesPage() {
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {['All', ...CROPS].map((c) => (
           <button key={c} onClick={() => setCropFilter(c)}
-            style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', fontSize: 12, fontWeight: 700, cursor: 'pointer', borderColor: cropFilter === c ? '#2e7d32' : '#ddd', background: cropFilter === c ? '#2e7d32' : '#fff', color: cropFilter === c ? '#fff' : '#555' }}>
+            style={{ padding: '6px 14px', borderRadius: 20, border: '1px solid', fontSize: 12, fontWeight: 700, cursor: 'pointer', borderColor: cropFilter === c ? '#2e7d32' : 'rgba(255,255,255,0.12)', background: cropFilter === c ? '#2e7d32' : '#0f231a', color: cropFilter === c ? '#fff' : '#e6f6ea' }}>
             {c}
           </button>
         ))}
       </div>
 
-      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#aaa' }}>Loading...</div>
+      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#9fbfa8' }}>Loading...</div>
         : <Table columns={columns} rows={filtered} empty="No diseases found" />}
 
       {modalOpen && (
@@ -152,7 +152,7 @@ export default function DiseasesPage() {
           <Field label="Prevention">
             <Textarea value={form.prevention} onChange={upd('prevention')} rows={2} />
           </Field>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #eee' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : editing ? 'Update Disease' : 'Add Disease'}</Button>
           </div>

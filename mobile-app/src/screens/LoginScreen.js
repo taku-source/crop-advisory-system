@@ -4,6 +4,7 @@ import {
   Alert, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/Logo';
 
 const GREEN = '#2e7d32';
 
@@ -32,7 +33,7 @@ export default function LoginScreen({ navigation }) {
 
         {/* Hero */}
         <View style={s.hero}>
-          <Text style={s.heroEmoji}>🌽</Text>
+          <Logo size={96} />
           <Text style={s.heroTitle}>Crop Advisory</Text>
           <Text style={s.heroSub}>Zimbabwe Agro-Ecological Region III</Text>
         </View>

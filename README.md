@@ -51,7 +51,7 @@ crop-advisory/
 │   ├── App.js                 ← Navigation setup
 │   └── package.json
 │
-└── frontend-admin/            ← React.js — Admin Dashboard
+└── frontend-web/              ← React.js — Unified web app
     ├── src/
     │   ├── components/
     │   └── pages/
@@ -101,10 +101,10 @@ npx expo start
 
 ---
 
-### 3. Admin Dashboard (React)
+### 3. Web Dashboard (React)
 
 ```bash
-cd frontend-admin
+cd frontend-web
 npm install
 npm start
 ```

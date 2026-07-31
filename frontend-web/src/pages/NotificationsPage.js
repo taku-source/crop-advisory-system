@@ -53,14 +53,14 @@ export default function NotificationsPage() {
       label: 'Notification',
       render: (n) => (
         <div>
-          <div style={{ fontWeight: 700, marginBottom: 2 }}>{n.title}</div>
-          <div style={{ fontSize: 12, color: '#666', maxWidth: 320 }}>{n.message}</div>
+          <div style={{ fontWeight: 700, marginBottom: 2, color: '#e6f6ea' }}>{n.title}</div>
+          <div style={{ fontSize: 12, color: '#cfd9c8', maxWidth: 320 }}>{n.message}</div>
         </div>
       ),
     },
     { label: 'Type', render: (n) => <span>{TYPE_ICONS[n.type]} <Chip color={TYPE_COLORS[n.type] || 'grey'}>{n.type}</Chip></span> },
     { label: 'Target', render: (n) => <Chip color="green">{n.targetAll ? '👥 All Farmers' : '👤 Selected'}</Chip> },
-    { label: 'Sent', render: (n) => <span style={{ fontSize: 12, color: '#aaa' }}>{fmt(n.createdAt)}</span> },
+    { label: 'Sent', render: (n) => <span style={{ fontSize: 12, color: '#9fbfa8' }}>{fmt(n.createdAt)}</span> },
     { label: 'Actions', render: (n) => <Button size="sm" variant="danger" onClick={() => setConfirm(n)}>Delete</Button> },
   ];
 
@@ -77,18 +77,18 @@ export default function NotificationsPage() {
       {/* Summary chips */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
         {Object.entries(byType).map(([type, count]) => (
-          <div key={type} style={{ background: '#fff', border: '1px solid #eee', borderRadius: 10, padding: '8px 16px', fontSize: 13 }}>
+          <div key={type} style={{ background: '#0f231a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 16px', fontSize: 13, color: '#e6f6ea' }}>
             {TYPE_ICONS[type]} <strong>{count}</strong> {type}
           </div>
         ))}
         {notifications.length > 0 && (
-          <div style={{ background: '#e8f5e9', border: '1px solid #c8e6c9', borderRadius: 10, padding: '8px 16px', fontSize: 13, color: '#2e7d32' }}>
+          <div style={{ background: '#122916', border: '1px solid rgba(74,222,128,0.18)', borderRadius: 10, padding: '8px 16px', fontSize: 13, color: '#9fbfa8' }}>
             📊 <strong>{notifications.length}</strong> total notifications
           </div>
         )}
       </div>
 
-      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#aaa' }}>Loading...</div>
+      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#9fbfa8' }}>Loading...</div>
         : <Table columns={columns} rows={notifications} empty="No notifications sent yet" />}
 
       {modalOpen && (
@@ -108,7 +108,7 @@ export default function NotificationsPage() {
           </div>
 
           {/* FCM info box */}
-          <div style={{ marginTop: 16, background: '#e3f2fd', borderRadius: 10, padding: 14, fontSize: 13, color: '#1565c0', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <div style={{ marginTop: 16, background: '#091009', borderRadius: 10, padding: 14, fontSize: 13, color: '#9fbfa8', display: 'flex', gap: 10, alignItems: 'flex-start', border: '1px solid rgba(255,255,255,0.08)' }}>
             <span style={{ fontSize: 18 }}>📱</span>
             <div>
               <strong>Firebase Cloud Messaging</strong><br />
@@ -116,7 +116,7 @@ export default function NotificationsPage() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #eee' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSend} disabled={saving}>{saving ? 'Sending...' : 'Send to All Farmers'}</Button>
           </div>

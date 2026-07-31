@@ -36,13 +36,13 @@ export default function FarmerDashboardPage({ onNavigate }) {
 
   return (
     <div>
-      <div style={{ background: 'linear-gradient(135deg, #f4faf0 0%, #e7f5e4 45%, #d0e8cc 100%)', borderRadius: 24, padding: '28px 32px', marginBottom: 28, color: '#1b5e20', border: '1px solid #c8e6c9', boxShadow: '0 16px 40px rgba(46, 125, 50, 0.10)' }}>
+      <div style={{ background: '#07120a', borderRadius: 24, padding: '28px 32px', marginBottom: 28, color: '#e6f6ea', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 40px rgba(0,0,0,0.28)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
           <Logo size={58} />
           <div>
-            <div style={{ fontSize: 13, color: '#2e7d32', marginBottom: 4, fontWeight: 700 }}>{greeting},</div>
+            <div style={{ fontSize: 13, color: '#9fbfa8', marginBottom: 4, fontWeight: 700 }}>{greeting},</div>
             <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 2 }}>Welcome back</div>
-            <div style={{ fontSize: 13, color: '#4e7c4b' }}>Your personalized farm advisory and weather-aware guidance.</div>
+            <div style={{ fontSize: 13, color: '#9fbfa8' }}>Your personalized farm advisory and weather-aware guidance.</div>
           </div>
         </div>
         <div style={{ marginTop: 8, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -52,8 +52,8 @@ export default function FarmerDashboardPage({ onNavigate }) {
             { label: 'Region', val: '🗺️ III' },
             { label: 'Season', val: '🌽 Main Season' },
           ].map((s) => (
-            <div key={s.label} style={{ background: 'rgba(255,255,255,0.75)', borderRadius: 10, padding: '8px 14px', fontSize: 12, border: '1px solid #dceedd' }}>
-              <span style={{ color: '#4e7c4b' }}>{s.label}: </span><strong>{s.val}</strong>
+            <div key={s.label} style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 14px', fontSize: 12, border: '1px solid rgba(255,255,255,0.12)', color: '#9fbfa8' }}>
+              <span style={{ color: '#c8f7d0' }}>{s.label}: </span><strong style={{ color: '#e6f6ea' }}>{s.val}</strong>
             </div>
           ))}
         </div>
@@ -68,13 +68,13 @@ export default function FarmerDashboardPage({ onNavigate }) {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 18 }}>
-        <section style={{ background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 10px 30px rgba(0,0,0,0.04)' }}>
+        <section style={{ background: '#0f231a', borderRadius: 20, padding: 24, boxShadow: '0 10px 30px rgba(0,0,0,0.16)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <div><h2 style={{ margin: 0, fontSize: 18 }}>Upcoming Advisories</h2><p style={{ margin: '6px 0 0', color: '#666' }}>Latest guidance for your farm.</p></div>
+            <div><h2 style={{ margin: 0, fontSize: 18, color: '#e6f6ea' }}>Upcoming Advisories</h2><p style={{ margin: '6px 0 0', color: '#9fbfa8' }}>Latest guidance for your farm.</p></div>
             <Button variant="secondary" onClick={() => onNavigate('advisories')}>See all</Button>
           </div>
           {advisories.length === 0
-            ? <div style={{ color: '#888' }}>No upcoming advisories in your area yet.</div>
+            ? <div style={{ color: '#9fbfa8' }}>No upcoming advisories in your area yet.</div>
             : advisories.map((advisory) => (
               <div key={advisory._id} style={{ borderBottom: '1px solid #f1f1f1', padding: '14px 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
@@ -89,20 +89,20 @@ export default function FarmerDashboardPage({ onNavigate }) {
             ))}
         </section>
 
-        <section style={{ background: '#fff', borderRadius: 20, padding: 24, boxShadow: '0 10px 30px rgba(0,0,0,0.04)' }}>
+        <section style={{ background: '#0f231a', borderRadius: 20, padding: 24, boxShadow: '0 10px 30px rgba(0,0,0,0.16)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <div><h2 style={{ margin: 0, fontSize: 18 }}>Recent Alerts</h2><p style={{ margin: '6px 0 0', color: '#666' }}>Notifications from your advisor.</p></div>
+            <div><h2 style={{ margin: 0, fontSize: 18, color: '#e6f6ea' }}>Recent Alerts</h2><p style={{ margin: '6px 0 0', color: '#9fbfa8' }}>Notifications from your advisor.</p></div>
             <Button variant="secondary" onClick={() => onNavigate('notifications')}>See all</Button>
           </div>
           {notifications.length === 0
-            ? <div style={{ color: '#888' }}>No notifications yet.</div>
+            ? <div style={{ color: '#9fbfa8' }}>No notifications yet.</div>
             : notifications.map((note) => (
-              <div key={note._id} style={{ marginBottom: 16, padding: 14, borderRadius: 14, background: '#fafafa' }}>
+              <div key={note._id} style={{ marginBottom: 16, padding: 14, borderRadius: 14, background: '#0f231a', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                  <div><strong style={{ fontSize: 14 }}>{note.title}</strong><div style={{ color: '#888', fontSize: 12 }}>{note.type}</div></div>
-                  <span style={{ color: '#999', fontSize: 12 }}>{new Date(note.createdAt).toLocaleDateString('en-GB')}</span>
+                  <div><strong style={{ fontSize: 14, color: '#e6f6ea' }}>{note.title}</strong><div style={{ color: '#9fbfa8', fontSize: 12 }}>{note.type}</div></div>
+                  <span style={{ color: '#9fbfa8', fontSize: 12 }}>{new Date(note.createdAt).toLocaleDateString('en-GB')}</span>
                 </div>
-                <p style={{ margin: '10px 0 0', color: '#555' }}>{note.message}</p>
+                <p style={{ margin: '10px 0 0', color: '#cfd9c8' }}>{note.message}</p>
               </div>
             ))}
         </section>

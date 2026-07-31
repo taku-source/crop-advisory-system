@@ -15,7 +15,7 @@ export function ReportsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 60, color: '#aaa', fontSize: 15 }}>Loading reports...</div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: 60, color: '#9fbfa8', fontSize: 15 }}>Loading reports...</div>;
   if (!report) return null;
 
   const BAR_COLORS = { Planting: '#4caf50', Fertilizer: '#2196f3', Pesticide: '#ff9800', Harvest: '#8bc34a', Expense: '#f44336' };
@@ -37,14 +37,14 @@ export function ReportsPage() {
         {/* Recent farmers */}
         <div>
           <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700 }}>Recently Registered Farmers</h3>
-          <div style={{ background: '#fff', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+          <div style={{ background: '#0f231a', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.08)' }}>
             {(report.recentFarmers || []).map((f, i) => (
-              <div key={f._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: i < (report.recentFarmers.length - 1) ? '1px solid #f5f5f5' : 'none' }}>
+              <div key={f._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: i < (report.recentFarmers.length - 1) ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{f.fullName}</div>
-                  <div style={{ fontSize: 11, color: '#aaa' }}>{f.district}</div>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: '#e6f6ea' }}>{f.fullName}</div>
+                  <div style={{ fontSize: 11, color: '#9fbfa8' }}>{f.district}</div>
                 </div>
-                <div style={{ fontSize: 11, color: '#aaa' }}>{new Date(f.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</div>
+                <div style={{ fontSize: 11, color: '#9fbfa8' }}>{new Date(f.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</div>
               </div>
             ))}
             {!report.recentFarmers?.length && <div style={{ textAlign: 'center', padding: 24, color: '#ccc' }}>No farmers yet</div>}
@@ -54,16 +54,16 @@ export function ReportsPage() {
         {/* Records by category */}
         <div>
           <h3 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 700 }}>Farm Records by Category</h3>
-          <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.07)' }}>
+          <div style={{ background: '#0f231a', borderRadius: 12, padding: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.08)' }}>
             {totalRecords === 0
               ? <div style={{ textAlign: 'center', color: '#ccc', padding: 20 }}>No records submitted yet</div>
               : Object.entries(report.recordsByCategory || {}).map(([cat, count]) => (
                 <div key={cat} style={{ marginBottom: 14 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, fontSize: 13 }}>
-                    <span style={{ fontWeight: 600 }}>{cat}</span>
-                    <span style={{ color: '#666' }}>{count} records</span>
+                    <span style={{ fontWeight: 600, color: '#e6f6ea' }}>{cat}</span>
+                    <span style={{ color: '#9fbfa8' }}>{count} records</span>
                   </div>
-                  <div style={{ background: '#f0f0f0', borderRadius: 6, height: 8 }}>
+                  <div style={{ background: '#122916', borderRadius: 6, height: 8 }}>
                     <div style={{ background: BAR_COLORS[cat] || '#2e7d32', width: `${(count / totalRecords) * 100}%`, height: '100%', borderRadius: 6 }} />
                   </div>
                 </div>
@@ -125,9 +125,9 @@ export function KnowledgePage() {
   const columns = [
     { label: 'Title', render: (a) => <strong style={{ fontSize: 13 }}>{a.title}</strong> },
     { label: 'Category', render: (a) => <Chip color="blue">{a.category}</Chip> },
-    { label: 'Crop', render: (a) => a.crop !== 'General' ? <Chip color="green">{a.crop}</Chip> : <span style={{ color: '#aaa', fontSize: 12 }}>General</span> },
-    { label: 'Tags', render: (a) => <span style={{ fontSize: 11, color: '#888' }}>{(a.tags || []).join(', ') || '—'}</span> },
-    { label: 'Created', render: (a) => <span style={{ fontSize: 12, color: '#aaa' }}>{new Date(a.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span> },
+    { label: 'Crop', render: (a) => a.crop !== 'General' ? <Chip color="green">{a.crop}</Chip> : <span style={{ color: '#9fbfa8', fontSize: 12 }}>General</span> },
+    { label: 'Tags', render: (a) => <span style={{ fontSize: 11, color: '#9fbfa8' }}>{(a.tags || []).join(', ') || '—'}</span> },
+    { label: 'Created', render: (a) => <span style={{ fontSize: 12, color: '#9fbfa8' }}>{new Date(a.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span> },
     { label: 'Actions', render: (a) => (
       <div style={{ display: 'flex', gap: 6 }}>
         <Button size="sm" variant="secondary" onClick={() => openEdit(a)}>Edit</Button>
@@ -142,13 +142,13 @@ export function KnowledgePage() {
         title={`Knowledge Base (${articles.length})`}
         action={
           <div style={{ display: 'flex', gap: 10 }}>
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{ padding: '9px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 13, outline: 'none', width: 260 }} />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{ padding: '9px 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, fontSize: 13, outline: 'none', width: 260, background: '#122916', color: '#e6f6ea' }} />
             <Button onClick={openAdd}>+ Add Article</Button>
           </div>
         }
       />
 
-      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#aaa' }}>Loading...</div>
+      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#9fbfa8' }}>Loading...</div>
         : <Table columns={columns} rows={articles} empty="No articles yet" />}
 
       {modalOpen && (
@@ -174,7 +174,7 @@ export function KnowledgePage() {
           <Field label="Tags (comma-separated)">
             <Input value={form.tags} onChange={upd('tags')} placeholder="maize, fertiliser, planting" />
           </Field>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid #eee' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : editing ? 'Update Article' : 'Publish Article'}</Button>
           </div>

@@ -43,7 +43,7 @@ export default function FarmersPage() {
       render: (f) => (
         <div>
           <div style={{ fontWeight: 700 }}>{f.fullName}</div>
-          <div style={{ fontSize: 11, color: '#888' }}>{f.email}</div>
+          <div style={{ fontSize: 11, color: '#9fbfa8' }}>{f.email}</div>
         </div>
       ),
     },
@@ -53,7 +53,7 @@ export default function FarmersPage() {
       render: (f) => (
         <div>
           <div>{f.district}</div>
-          <div style={{ fontSize: 11, color: '#aaa' }}>{f.ward}</div>
+          <div style={{ fontSize: 11, color: '#9fbfa8' }}>{f.ward}</div>
         </div>
       ),
     },
@@ -62,12 +62,12 @@ export default function FarmersPage() {
       render: (f) => (
         <div>
           <div>{f.farmName || '—'}</div>
-          <div style={{ fontSize: 11, color: '#aaa' }}>{f.farmSize || '—'}</div>
+          <div style={{ fontSize: 11, color: '#9fbfa8' }}>{f.farmSize || '—'}</div>
         </div>
       ),
     },
     { label: 'Status', render: (f) => <Chip color={f.isActive ? 'green' : 'red'}>{f.isActive ? 'Active' : 'Suspended'}</Chip> },
-    { label: 'Joined', render: (f) => <span style={{ fontSize: 12, color: '#aaa' }}>{fmt(f.createdAt)}</span> },
+    { label: 'Joined', render: (f) => <span style={{ fontSize: 12, color: '#9fbfa8' }}>{fmt(f.createdAt)}</span> },
     {
       label: 'Actions',
       render: (f) => (
@@ -89,7 +89,7 @@ export default function FarmersPage() {
         action={<SearchBar value={search} onChange={setSearch} placeholder="Search name, email, district..." />}
       />
 
-      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#aaa' }}>Loading...</div> : (
+      {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#9fbfa8' }}>Loading...</div> : (
         <Table columns={columns} rows={farmers} empty="No farmers found" />
       )}
 
@@ -107,9 +107,9 @@ export default function FarmersPage() {
               ['Status', viewFarmer.isActive ? '✅ Active' : '🚫 Suspended'],
               ['Joined', new Date(viewFarmer.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })],
             ].map(([k, v]) => (
-              <div key={k} style={{ background: '#f8f8f8', borderRadius: 8, padding: 10 }}>
-                <div style={{ fontSize: 10, color: '#aaa', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 3 }}>{k}</div>
-                <div style={{ fontWeight: 600, color: '#222' }}>{v}</div>
+              <div key={k} style={{ background: '#0f231a', borderRadius: 8, padding: 10, border: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ fontSize: 10, color: '#9fbfa8', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 3 }}>{k}</div>
+                <div style={{ fontWeight: 600, color: '#e6f6ea' }}>{v}</div>
               </div>
             ))}
           </div>

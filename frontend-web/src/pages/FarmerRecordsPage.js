@@ -99,7 +99,7 @@ export default function FarmerRecordsPage() {
       <PageHeader title="Farm Records" action={<Button onClick={() => handleOpen()}>+ Add Record</Button>} />
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 18 }}>
         <SearchBar value={search} onChange={setSearch} placeholder="Search records..." />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ padding: '10px 14px', borderRadius: 10, border: '1px solid #ddd', minWidth: 180 }}>
+        <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)', background: '#122916', color: '#e6f6ea', minWidth: 180 }}>
           <option value="All">All Categories</option>
           {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
         </select>
@@ -107,26 +107,26 @@ export default function FarmerRecordsPage() {
 
       {summary && (
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 18 }}>
-          <div style={{ background: '#fff', padding: 18, borderRadius: 16, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', minWidth: 180 }}>
-            <div style={{ fontSize: 12, color: '#888' }}>Total Records</div>
-            <div style={{ fontSize: 28, fontWeight: 800 }}>{summary.totalRecords}</div>
+          <div style={{ background: '#0f231a', padding: 18, borderRadius: 16, boxShadow: '0 12px 30px rgba(0,0,0,0.16)', minWidth: 180, border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ fontSize: 12, color: '#9fbfa8' }}>Total Records</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#e6f6ea' }}>{summary.totalRecords}</div>
           </div>
           {Object.entries(summary.byCategory || {}).map(([key, value]) => (
-            <div key={key} style={{ background: '#fff', padding: 18, borderRadius: 16, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', minWidth: 140 }}>
-              <div style={{ fontSize: 12, color: '#888' }}>{key}</div>
-              <div style={{ fontSize: 24, fontWeight: 700 }}>{value}</div>
+            <div key={key} style={{ background: '#0f231a', padding: 18, borderRadius: 16, boxShadow: '0 12px 30px rgba(0,0,0,0.16)', minWidth: 140, border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ fontSize: 12, color: '#9fbfa8' }}>{key}</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#e6f6ea' }}>{value}</div>
             </div>
           ))}
         </div>
       )}
 
       <div style={{ display: 'grid', gap: 16 }}>
-        {filtered.length === 0 ? <div style={{ color: '#888' }}>No records found.</div> : filtered.map((record) => (
-          <div key={record._id} style={{ background: '#fff', borderRadius: 20, padding: 22, boxShadow: '0 16px 40px rgba(0,0,0,0.04)' }}>
+        {filtered.length === 0 ? <div style={{ color: '#9fbfa8' }}>No records found.</div> : filtered.map((record) => (
+          <div key={record._id} style={{ background: '#0f231a', borderRadius: 20, padding: 22, boxShadow: '0 16px 40px rgba(0,0,0,0.16)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 700 }}>{record.category}</div>
-                <div style={{ color: '#666', fontSize: 13 }}>{new Date(record.date).toLocaleDateString('en-GB')}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#e6f6ea' }}>{record.category}</div>
+                <div style={{ color: '#9fbfa8', fontSize: 13 }}>{new Date(record.date).toLocaleDateString('en-GB')}</div>
               </div>
               <div style={{ display: 'flex', gap: 10 }}>
                 <Button variant="secondary" size="sm" onClick={() => handleOpen(record)}>Edit</Button>
