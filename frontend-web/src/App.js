@@ -104,7 +104,7 @@ function DashboardPage() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <Logo size={56} />
+              <Logo size={100} />
               <div>
                 <div style={{ fontSize: 12, color: '#8ee4a4', letterSpacing: 1.2, textTransform: 'uppercase', fontWeight: 700 }}>{greeting}, {user?.fullName || 'Agric Team'}</div>
                 <div style={{ fontSize: 24, fontWeight: 800, marginTop: 4 }}>Seasonal crop advisory hub</div>
@@ -215,7 +215,7 @@ function DashboardPage() {
   );
 }
 
-function PublicHomepage({ onSignIn, onRegister }) {
+function PublicHomepage({ onSignIn, onRegister, onHome }) {
   React.useEffect(() => {
     const els = document.querySelectorAll('.feature-card');
     els.forEach(el => {
@@ -247,8 +247,8 @@ function PublicHomepage({ onSignIn, onRegister }) {
     <div style={{ minHeight: '100vh', background: '#091009', color: '#e6f6ea', fontFamily: "'Inter', sans-serif" }}>
       <header style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, padding: '18px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(9,16,9,0.6)', borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}><Logo size={44} /></div>
-          <div style={{ fontWeight: 800, fontSize: 18, color: '#c8f7d0' }}>Crop Advisory</div>
+          <div style={{ display: 'flex', alignItems: 'center' }}><Logo size={80} onClick={onHome} /></div>
+          <div style={{ fontWeight: 800, fontSize: 18, color: '#c8f7d0', cursor: 'pointer' }} onClick={onHome}>Crop Advisory</div>
         </div>
         <nav style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
           <a href="#features" onClick={(e) => { e.preventDefault(); scrollToSection('features'); }} style={{ color: '#9fbfa8', textDecoration: 'none' }}>Features</a>
@@ -264,12 +264,11 @@ function PublicHomepage({ onSignIn, onRegister }) {
         <section style={{ minHeight: '78vh', display: 'flex', alignItems: 'center', padding: '40px 28px', backgroundImage: 'linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.0))' }}>
           <div style={{ maxWidth: 1180, margin: '0 auto', display: 'grid', gap: 48, alignItems: 'center' }}>
             <div>
-              <div style={{ color: '#6fe89a', fontFamily: "'Syne Mono', monospace", letterSpacing: '.12em', fontSize: 12, marginBottom: 12 }}>START THIS SEASON</div>
-              <h1 style={{ fontSize: 120, lineHeight: 0.9, margin: 0, fontFamily: "'Syne', sans-serif", fontWeight: 900 }}>Farm<br/><span style={{ color: '#2be07a', textDecoration: 'underline 6px rgba(43,224,122,0.25)', textDecorationSkipInk: 'none' }}>smarter</span><br/>this season.</h1>
-              <p style={{ marginTop: 22, color: '#94bfa3', maxWidth: 680, fontSize: 16 }}>Seasonal advisories, symptom-based disease identification, and farm records — built for small-scale farmers in Zimbabwe's Agro-Ecological Region III.</p>
-              <div style={{ marginTop: 28, display: 'flex', gap: 14 }}>
+              <div style={{ color: '#6fe89a', fontFamily: "'Syne Mono', monospace", letterSpacing: '.12em', fontSize: 12, marginBottom: 12, textAlign: 'left' }}>START THIS SEASON</div>
+              <h1 style={{ fontSize: 120, lineHeight: 0.9, margin: 0, fontFamily: "'Syne', sans-serif", fontWeight: 900, textAlign: 'left' }}>Farm<br/><span style={{ color: '#2be07a', textDecoration: 'underline 6px rgba(43,224,122,0.25)', textDecorationSkipInk: 'none' }}>smarter</span><br/>this season.</h1>
+              <p style={{ marginTop: 22, color: '#94bfa3', maxWidth: 680, fontSize: 16, lineHeight: 1.7 }}>Seasonal advisories, symptom-based disease identification, and farm records — built for small-scale farmers in Zimbabwe's Agro-Ecological Region III.</p>
+              <div style={{ marginTop: 28, display: 'flex', justifyContent: 'flex-start' }}>
                 <button onClick={() => onRegister()} style={{ background: '#2be07a', color: '#04220b', padding: '14px 26px', borderRadius: 12, fontWeight: 800, fontSize: 15 }}>📱 Download Free App</button>
-                <a href="#features" onClick={(e) => { e.preventDefault(); scrollToSection('features'); }} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '14px 26px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', color: '#cfe7d1', textDecoration: 'none' }}>Explore Features</a>
               </div>
             </div>
           </div>
@@ -411,7 +410,7 @@ function QuickCard({ icon, label, desc, page, color }) {
   );
 }
 
-function LoginPage({ onSwitchMode }) {
+function LoginPage({ onSwitchMode, onHome }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -435,7 +434,7 @@ function LoginPage({ onSwitchMode }) {
     <div style={{ minHeight: '100vh', background: '#091009', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 16px' }}>
       <div style={{ background: '#0f231a', borderRadius: 28, padding: '42px 36px', width: '100%', maxWidth: 460, boxShadow: '0 30px 80px rgba(0,0,0,0.35)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, marginBottom: 30 }}>
-          <Logo size={82} />
+          <Logo size={220} onClick={onHome} />
           <div style={{ textAlign: 'center' }}>
             <h1 style={{ margin: '0 0 8px', fontSize: 26, fontWeight: 800, color: '#e6f6ea' }}>Crop Advisory</h1>
           </div>
@@ -488,7 +487,7 @@ function AdminLayout() {
       <aside style={{ width: 236, background: '#091009', color: '#fff', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
         <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Logo size={44} />
+            <Logo size={100} onClick={() => setPage('dashboard')} />
             <div>
               <div style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.2 }}>Crop Advisory</div>
               <div style={{ fontSize: 10, color: '#81c784', marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 }}>Admin Dashboard</div>
@@ -550,7 +549,7 @@ function FarmerLayout() {
       <aside style={{ width: 260, background: '#091009', color: '#fff', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.10)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Logo size={48} />
+            <Logo size={100} onClick={() => setPage('dashboard')} />
             <div>
               <div style={{ fontSize: 16, fontWeight: 800 }}>Crop Advisory</div>
               <div style={{ fontSize: 11, color: '#81c784', marginTop: 6, textTransform: 'uppercase', letterSpacing: 0.4 }}>Farmer Portal</div>
@@ -606,7 +605,7 @@ function AppInner() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#091009', color: '#e6f6ea' }}>
         <div style={{ textAlign: 'center' }}>
-          <Logo size={68} />
+          <Logo size={160} />
           <div style={{ marginTop: 16, fontSize: 15, color: '#a5d6a7' }}>Loading Crop Advisory...</div>
         </div>
       </div>
@@ -614,9 +613,9 @@ function AppInner() {
   }
 
   if (!user) {
-    if (mode === 'register') return <RegisterPage onSwitchMode={setMode} />;
-    if (mode === 'login') return <LoginPage onSwitchMode={setMode} />;
-    return <PublicHomepage onSignIn={() => setMode('login')} onRegister={() => setMode('register')} />;
+    if (mode === 'register') return <RegisterPage onSwitchMode={setMode} onHome={() => setMode('home')} />;
+    if (mode === 'login') return <LoginPage onSwitchMode={setMode} onHome={() => setMode('home')} />;
+    return <PublicHomepage onSignIn={() => setMode('login')} onRegister={() => setMode('register')} onHome={() => setMode('home')} />;
   }
 
   return user.role === 'admin' ? <AdminLayout /> : <FarmerLayout />;

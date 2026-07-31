@@ -8,7 +8,7 @@ const DISTRICTS = [
   'Manicaland', 'Matabeleland North', 'Matabeleland South', 'Masvingo', 'Bulawayo', 'Harare',
 ];
 
-export default function RegisterPage({ onSwitchMode }) {
+export default function RegisterPage({ onSwitchMode, onHome }) {
   const { register } = useAuth();
   const [form, setForm] = useState({
     fullName: '', email: '', phone: '', password: '', district: '', ward: '', farmName: '', farmSize: '',
@@ -40,7 +40,7 @@ export default function RegisterPage({ onSwitchMode }) {
     <div style={{ minHeight: '100vh', background: '#091009', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '28px 16px' }}>
       <div style={{ maxWidth: 560, width: '100%', background: '#0f231a', borderRadius: 28, padding: '36px 38px', boxShadow: '0 30px 100px rgba(0,0,0,0.25)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-          <Logo size={72} />
+          <Logo size={160} onClick={onHome} />
           <div style={{ textAlign: 'center' }}>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, color: '#e6f6ea' }}>Farmer Registration</h1>
           </div>

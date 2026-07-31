@@ -38,7 +38,7 @@ export default function FarmerDashboardPage({ onNavigate }) {
     <div>
       <div style={{ background: '#07120a', borderRadius: 24, padding: '28px 32px', marginBottom: 28, color: '#e6f6ea', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 40px rgba(0,0,0,0.28)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 16 }}>
-          <Logo size={58} />
+          <Logo size={160} />
           <div>
             <div style={{ fontSize: 13, color: '#9fbfa8', marginBottom: 4, fontWeight: 700 }}>{greeting},</div>
             <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 2 }}>Welcome back</div>
