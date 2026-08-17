@@ -5,7 +5,6 @@ import {
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { getAdvisories, getNotifications, getRecordSummary } from '../api';
-import { registerForPushNotifications } from '../notifications';
 
 const GREEN = '#2e7d32';
 
@@ -33,8 +32,6 @@ export default function DashboardScreen({ navigation }) {
 
   useEffect(() => {
     fetchAll();
-    // Register for push notifications after login
-    registerForPushNotifications().catch(() => {});
   }, []);
 
   const hour = new Date().getHours();

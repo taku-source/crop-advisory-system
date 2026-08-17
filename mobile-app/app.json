@@ -31,13 +31,6 @@
       ]
     },
     "plugins": [
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#2e7d32"
-        }
-      ],
       "expo-status-bar"
     ],
     "extra": {
