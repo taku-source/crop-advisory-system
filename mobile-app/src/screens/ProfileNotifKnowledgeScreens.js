@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, Alert, ActivityIndicator, RefreshControl, Switch,
+  TextInput, Alert, ActivityIndicator, RefreshControl, Switch, Picker,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import { useFarmProfile } from '../context/FarmProfileContext';
 import { updateProfile, changePassword, getNotifications, getKnowledge, getFarmerReport } from '../api';
+import { getCurrentLocation, isWithinZimbabwe, formatCoordinates } from '../utils/locationUtils';
+import { crops, soilTypes } from '../api/farmerApi';
 
 const GREEN = '#2e7d32';
 const LIGHT_GREEN = '#e8f5e9';
@@ -12,11 +15,33 @@ const LIGHT_GREEN = '#e8f5e9';
 // ─── ProfileScreen ────────────────────────────────────────────────────────────
 export function ProfileScreen() {
   const { user, logout } = useAuth();
-  const [tab, setTab] = useState('profile');
+  const { profile, updateProfile: updateFarmProfile, isProfileComplete } = useFarmProfile();
+  const [tab, setTab] = useState('farm');
   const [form, setForm] = useState({ fullName: user?.fullName || '', phone: user?.phone || '', district: user?.district || '', ward: user?.ward || '', farmName: user?.farmName || '', farmSize: user?.farmSize || '' });
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [farmForm, setFarmForm] = useState({
+    primaryCrop: profile?.primaryCrop || '',
+    soilType: profile?.soilType || '',
+    plantingDate: profile?.plantingDate ? new Date(profile.plantingDate).toISOString().split('T')[0] : '',
+    latitude: profile?.location?.latitude || '',
+    longitude: profile?.location?.longitude || '',
+  });
   const [saving, setSaving] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [report, setReport] = useState(null);
+
+  // Sync farm profile form when profile loads
+  useEffect(() => {
+    if (profile) {
+      setFarmForm({
+        primaryCrop: profile.primaryCrop || '',
+        soilType: profile.soilType || '',
+        plantingDate: profile.plantingDate ? new Date(profile.plantingDate).toISOString().split('T')[0] : '',
+        latitude: profile.location?.latitude || '',
+        longitude: profile.location?.longitude || '',
+      });
+    }
+  }, [profile]);
 
   useEffect(() => {
     getFarmerReport().then((r) => setReport(r.data.report)).catch(() => {});
@@ -29,6 +54,58 @@ export function ProfileScreen() {
       Alert.alert('Success', 'Profile updated successfully');
     } catch (err) {
       Alert.alert('Error', err.response?.data?.message || 'Update failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCapureLocation = async () => {
+    setLocating(true);
+    try {
+      const location = await getCurrentLocation();
+      
+      if (!isWithinZimbabwe(location.latitude, location.longitude)) {
+        Alert.alert('Location Error', 'Your location appears to be outside Zimbabwe. Please verify or enter manually.');
+        setLocating(false);
+        return;
+      }
+
+      setFarmForm((f) => ({
+        ...f,
+        latitude: location.latitude.toString(),
+        longitude: location.longitude.toString(),
+      }));
+      
+      Alert.alert('Success', `Location captured: ${formatCoordinates(location.latitude, location.longitude)}`);
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Failed to get location');
+    } finally {
+      setLocating(false);
+    }
+  };
+
+  const handleSaveFarmProfile = async () => {
+    if (!farmForm.primaryCrop || !farmForm.soilType || !farmForm.latitude || !farmForm.longitude) {
+      Alert.alert('Incomplete', 'Please fill all required fields');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const updates = {
+        primaryCrop: farmForm.primaryCrop,
+        soilType: farmForm.soilType,
+        plantingDate: farmForm.plantingDate || undefined,
+        location: {
+          latitude: parseFloat(farmForm.latitude),
+          longitude: parseFloat(farmForm.longitude),
+        },
+      };
+
+      await updateFarmProfile(updates);
+      Alert.alert('Success', 'Farm profile updated! Advisories will now be personalized for your location and soil type.');
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Failed to update farm profile');
     } finally {
       setSaving(false);
     }
@@ -84,17 +161,111 @@ export function ProfileScreen() {
         </View>
       )}
 
+      {/* Profile Completion Status */}
+      {isProfileComplete() ? (
+        <View style={s.completionBanner}>
+          <Text style={s.completionText}>✅ Farm Profile Complete</Text>
+          <Text style={s.completionSub}>You're getting personalized advisories</Text>
+        </View>
+      ) : (
+        <View style={s.incompleteBanner}>
+          <Text style={s.incompleteText}>⚠️ Complete Your Farm Profile</Text>
+          <Text style={s.incompleteSub}>Enable location-based personalized advisories</Text>
+        </View>
+      )}
+
       {/* Tabs */}
       <View style={s.tabs}>
-        {['profile', 'security'].map((t) => (
+        {['farm', 'profile', 'security'].map((t) => (
           <TouchableOpacity key={t} style={[s.tab, tab === t && s.tabActive]} onPress={() => setTab(t)}>
-            <Text style={[s.tabText, tab === t && s.tabTextActive]}>{t === 'profile' ? '👤 Profile' : '🔒 Security'}</Text>
+            <Text style={[s.tabText, tab === t && s.tabTextActive]}>
+              {t === 'farm' ? '🌾 Farm' : t === 'profile' ? '👤 Profile' : '🔒 Security'}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
       <View style={s.formSection}>
-        {tab === 'profile' ? (
+        {tab === 'farm' ? (
+          <>
+            <View>
+              <Text style={s.label}>🌍 Your Location (GPS)</Text>
+              <View style={s.locationContainer}>
+                <TextInput
+                  style={[s.input, { flex: 1 }]}
+                  placeholder="Latitude"
+                  value={farmForm.latitude}
+                  onChangeText={(val) => setFarmForm((f) => ({ ...f, latitude: val }))}
+                  keyboardType="decimal-pad"
+                />
+                <TextInput
+                  style={[s.input, { flex: 1, marginLeft: 8 }]}
+                  placeholder="Longitude"
+                  value={farmForm.longitude}
+                  onChangeText={(val) => setFarmForm((f) => ({ ...f, longitude: val }))}
+                  keyboardType="decimal-pad"
+                />
+              </View>
+              <TouchableOpacity
+                style={[s.btnSecondary, locating && { opacity: 0.6 }]}
+                onPress={handleCapureLocation}
+                disabled={locating}
+              >
+                {locating ? (
+                  <ActivityIndicator size="small" color={GREEN} />
+                ) : (
+                  <Text style={s.btnSecondaryText}>📍 Capture GPS Location</Text>
+                )}
+              </TouchableOpacity>
+              {farmForm.latitude && farmForm.longitude && (
+                <Text style={s.helpText}>📍 {formatCoordinates(parseFloat(farmForm.latitude), parseFloat(farmForm.longitude))}</Text>
+              )}
+            </View>
+
+            <View>
+              <Text style={s.label}>🌱 Primary Crop</Text>
+              <View style={s.pickerContainer}>
+                <Picker
+                  selectedValue={farmForm.primaryCrop}
+                  onValueChange={(val) => setFarmForm((f) => ({ ...f, primaryCrop: val }))}
+                  style={s.picker}
+                >
+                  <Picker.Item label="Select a crop..." value="" />
+                  {crops.map((c) => <Picker.Item key={c} label={c} value={c} />)}
+                </Picker>
+              </View>
+            </View>
+
+            <View>
+              <Text style={s.label}>🥔 Soil Type</Text>
+              <View style={s.pickerContainer}>
+                <Picker
+                  selectedValue={farmForm.soilType}
+                  onValueChange={(val) => setFarmForm((f) => ({ ...f, soilType: val }))}
+                  style={s.picker}
+                >
+                  <Picker.Item label="Select soil type..." value="" />
+                  {soilTypes.map((s) => <Picker.Item key={s} label={s} value={s} />)}
+                </Picker>
+              </View>
+            </View>
+
+            <View>
+              <Text style={s.label}>📅 Planting Date (Optional)</Text>
+              <TextInput
+                style={s.input}
+                placeholder="YYYY-MM-DD"
+                value={farmForm.plantingDate}
+                onChangeText={(val) => setFarmForm((f) => ({ ...f, plantingDate: val }))}
+              />
+              <Text style={s.helpText}>Helps determine your crop's current growth stage</Text>
+            </View>
+
+            <TouchableOpacity style={s.btnPrimary} onPress={handleSaveFarmProfile} disabled={saving}>
+              {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>Save Farm Profile</Text>}
+            </TouchableOpacity>
+          </>
+        ) : tab === 'profile' ? (
           <>
             {[
               { key: 'fullName', label: 'Full Name' },
@@ -290,6 +461,18 @@ const s = StyleSheet.create({
   btnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   logoutBtn: { marginHorizontal: 16, marginTop: 8, padding: 15, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#ffcdd2', backgroundColor: '#fff5f5' },
   logoutText: { color: '#c62828', fontWeight: '700', fontSize: 15 },
+  completionBanner: { backgroundColor: '#c8e6c9', marginHorizontal: 14, marginVertical: 12, padding: 14, borderRadius: 10, borderLeftWidth: 4, borderLeftColor: '#2e7d32' },
+  completionText: { fontSize: 14, fontWeight: '700', color: '#1b5e20' },
+  completionSub: { fontSize: 12, color: '#2e7d32', marginTop: 4 },
+  incompleteBanner: { backgroundColor: '#fff3e0', marginHorizontal: 14, marginVertical: 12, padding: 14, borderRadius: 10, borderLeftWidth: 4, borderLeftColor: '#f57c00' },
+  incompleteText: { fontSize: 14, fontWeight: '700', color: '#e65100' },
+  incompleteSub: { fontSize: 12, color: '#f57c00', marginTop: 4 },
+  locationContainer: { flexDirection: 'row' },
+  pickerContainer: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, backgroundColor: '#fafafa', overflow: 'hidden' },
+  picker: { height: 50 },
+  btnSecondary: { marginTop: 10, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: GREEN, backgroundColor: '#f1f8e9', alignItems: 'center' },
+  btnSecondaryText: { color: GREEN, fontWeight: '700', fontSize: 14 },
+  helpText: { fontSize: 11, color: '#888', marginTop: 6, fontStyle: 'italic' },
   // Notifications
   notifCard: { backgroundColor: '#fff', marginHorizontal: 14, marginVertical: 5, borderRadius: 12, padding: 14, borderLeftWidth: 4, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5, elevation: 1 },
   notifTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },

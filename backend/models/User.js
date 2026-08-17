@@ -14,6 +14,18 @@ const userSchema = new mongoose.Schema(
     role:      { type: String, enum: ['farmer', 'admin'], default: 'farmer' },
     isActive:  { type: Boolean, default: true },
     fcmToken:  { type: String, default: null },      // Firebase push token
+    
+    // Location (GPS coordinates)
+    location: {
+      latitude:  { type: Number, default: null },
+      longitude: { type: Number, default: null },
+      lastUpdated: { type: Date, default: null }
+    },
+    
+    // Farm profile information for contextual advice
+    soilType:    { type: String, default: '' },      // e.g., "Sandy loam", "Clay"
+    primaryCrop: { type: String, default: '' },
+    profileCompleted: { type: Boolean, default: false }
     resetPasswordToken:   { type: String },
     resetPasswordExpires: { type: Date },
   },

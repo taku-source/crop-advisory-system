@@ -17,14 +17,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-app.use('/api/auth',          require('./routes/auth'));
-app.use('/api/users',         require('./routes/users'));
-app.use('/api/advisories',    require('./routes/advisories'));
-app.use('/api/diseases',      require('./routes/diseases'));
-app.use('/api/records',       require('./routes/records'));
-app.use('/api/notifications', require('./routes/notifications'));
-app.use('/api/reports',       require('./routes/reports'));
-app.use('/api/knowledge',     require('./routes/knowledge'));
+app.use('/api/auth',                    require('./routes/auth'));
+app.use('/api/users',                   require('./routes/users'));
+app.use('/api/advisories',              require('./routes/advisories'));
+app.use('/api/advisories-contextual',   require('./routes/advisoriesContextual'));
+app.use('/api/diseases',                require('./routes/diseases'));
+app.use('/api/diseases-symptom-match',  require('./routes/diseasesSymptomMatch'));
+app.use('/api/farmers',                 require('./routes/farmers'));
+app.use('/api/records',                 require('./routes/records'));
+app.use('/api/notifications',           require('./routes/notifications'));
+app.use('/api/reports',                 require('./routes/reports'));
+app.use('/api/knowledge',               require('./routes/knowledge'));
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

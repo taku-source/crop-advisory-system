@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { FarmProfileProvider } from './src/context/FarmProfileContext';
 import Logo from './src/components/Logo';
 import LoginScreen    from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
@@ -72,6 +73,12 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider><NavigationContainer><RootNavigator /></NavigationContainer></AuthProvider>
+    <AuthProvider>
+      <FarmProfileProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </FarmProfileProvider>
+    </AuthProvider>
   );
 }
