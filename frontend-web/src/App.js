@@ -256,7 +256,7 @@ function PublicHomepage({ onSignIn, onRegister, onHome }) {
           <a href="#diseases" onClick={(e) => { e.preventDefault(); scrollToSection('diseases'); }} style={{ color: '#9fbfa8', textDecoration: 'none' }}>Diseases</a>
           <a href="#region" onClick={(e) => { e.preventDefault(); scrollToSection('region'); }} style={{ color: '#9fbfa8', textDecoration: 'none' }}>Region III</a>
           <button onClick={() => onSignIn()} style={{ marginLeft: 12, padding: '8px 14px', borderRadius: 8, background: 'transparent', color: '#e6f6ea', border: '1px solid rgba(255,255,255,0.06)' }}>Sign In</button>
-          <button onClick={() => onRegister()} style={{ marginLeft: 8, padding: '8px 14px', borderRadius: 8, background: '#2be07a', color: '#04220b', border: 'none', fontWeight: 800 }}>Get the App</button>
+          <button onClick={() => onRegister()} style={{ marginLeft: 8, padding: '8px 14px', borderRadius: 8, background: '#2be07a', color: '#04220b', border: 'none', fontWeight: 800 }}>Sign Up</button>
         </nav>
       </header>
 
@@ -267,8 +267,9 @@ function PublicHomepage({ onSignIn, onRegister, onHome }) {
               <div style={{ color: '#6fe89a', fontFamily: "'Syne Mono', monospace", letterSpacing: '.12em', fontSize: 12, marginBottom: 12, textAlign: 'left' }}>START THIS SEASON</div>
               <h1 style={{ fontSize: 120, lineHeight: 0.9, margin: 0, fontFamily: "'Syne', sans-serif", fontWeight: 900, textAlign: 'left' }}>Farm<br/><span style={{ color: '#2be07a', textDecoration: 'underline 6px rgba(43,224,122,0.25)', textDecorationSkipInk: 'none' }}>smarter</span><br/>this season.</h1>
               <p style={{ marginTop: 22, color: '#94bfa3', maxWidth: 680, fontSize: 16, lineHeight: 1.7 }}>Seasonal advisories, symptom-based disease identification, and farm records — built for small-scale farmers in Zimbabwe's Agro-Ecological Region III.</p>
-              <div style={{ marginTop: 28, display: 'flex', justifyContent: 'flex-start' }}>
-                <button onClick={() => onRegister()} style={{ background: '#2be07a', color: '#04220b', padding: '14px 26px', borderRadius: 12, fontWeight: 800, fontSize: 15 }}>📱 Download Free App</button>
+              <div style={{ marginTop: 28, display: 'flex', justifyContent: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+                <button onClick={() => onRegister()} style={{ background: '#2be07a', color: '#04220b', padding: '14px 26px', borderRadius: 12, fontWeight: 800, fontSize: 15 }}>✍️ Sign Up</button>
+                <button onClick={() => onRegister()} style={{ background: 'transparent', color: '#e6f6ea', padding: '14px 26px', borderRadius: 12, fontWeight: 800, fontSize: 15, border: '1px solid rgba(255,255,255,0.12)' }}>📱 Download Free App</button>
               </div>
             </div>
           </div>

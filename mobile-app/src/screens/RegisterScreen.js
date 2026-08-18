@@ -8,8 +8,7 @@ import { useAuth } from '../context/AuthContext';
 const GREEN = '#2e7d32';
 
 const DISTRICTS = [
-  'Midlands', 'Mashonaland West', 'Mashonaland East', 'Mashonaland Central',
-  'Manicaland', 'Matabeleland North', 'Matabeleland South', 'Masvingo',
+  'Gweru', 'Kwekwe', 'Mvuma', 'Chirumhanzu', 'Shurugwi', 'Gutu', 'Masvingo', 'Buhera', 'Mutare', 'Makoni', 'Wedza', 'Chikomba', 'Sanyati', 'Chegutu', 'Guruve',
 ];
 
 const FIELDS = [
@@ -72,7 +71,7 @@ export default function RegisterScreen({ navigation }) {
       ))}
 
       <View style={s.infoBox}>
-        <Text style={s.infoText}>📍 Make sure your district and ward are correct — this helps us send you relevant farming advisories for your area.</Text>
+        <Text style={s.infoText}>📍 District is the local area, and ward is your village/administrative ward inside that district. This helps us send the right local advisories and seasonal guidance.</Text>
       </View>
 
       <TouchableOpacity style={[s.btnPrimary, loading && s.btnDisabled]} onPress={handleRegister} disabled={loading}>

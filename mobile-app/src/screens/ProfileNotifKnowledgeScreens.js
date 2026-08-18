@@ -223,7 +223,8 @@ export function ProfileScreen() {
             </View>
 
             <View>
-              <Text style={s.label}>🌱 Primary Crop</Text>
+              <Text style={s.label}>🌱 Crop to Plant This Season</Text>
+              <Text style={s.helperText}>Choose the crop you are planning to grow in your farm so we can tailor timing and recommendations.</Text>
               <View style={s.pickerContainer}>
                 <Picker
                   selectedValue={farmForm.primaryCrop}
@@ -237,7 +238,8 @@ export function ProfileScreen() {
             </View>
 
             <View>
-              <Text style={s.label}>🥔 Soil Type</Text>
+              <Text style={s.label}>🥔 Soil Type on Your Farm</Text>
+              <Text style={s.helperText}>Select the soil type of your field. This changes fertiliser and moisture advice for your farm.</Text>
               <View style={s.pickerContainer}>
                 <Picker
                   selectedValue={farmForm.soilType}
@@ -252,6 +254,7 @@ export function ProfileScreen() {
 
             <View>
               <Text style={s.label}>📅 Planting Date (Optional)</Text>
+              <Text style={s.helperText}>Set the expected planting date so advisories match your crop stage and the rain calendar.</Text>
               <TextInput
                 style={s.input}
                 placeholder="YYYY-MM-DD"

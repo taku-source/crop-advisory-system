@@ -4,8 +4,7 @@ import { toast, Field, Input, Button } from '../components/UI';
 import Logo from '../components/Logo';
 
 const DISTRICTS = [
-  'Midlands', 'Mashonaland West', 'Mashonaland East', 'Mashonaland Central',
-  'Manicaland', 'Matabeleland North', 'Matabeleland South', 'Masvingo', 'Bulawayo', 'Harare',
+  'Gweru', 'Kwekwe', 'Mvuma', 'Chirumhanzu', 'Shurugwi', 'Gutu', 'Masvingo', 'Buhera', 'Mutare', 'Makoni', 'Wedza', 'Chikomba', 'Sanyati', 'Chegutu', 'Guruve',
 ];
 
 export default function RegisterPage({ onSwitchMode, onHome }) {
