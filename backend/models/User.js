@@ -25,7 +25,8 @@ const userSchema = new mongoose.Schema(
     // Farm profile information for contextual advice
     soilType:    { type: String, default: '' },      // e.g., "Sandy loam", "Clay"
     primaryCrop: { type: String, default: '' },
-    profileCompleted: { type: Boolean, default: false }
+    plantingDate: { type: Date, default: null },
+    profileCompleted: { type: Boolean, default: false },
     resetPasswordToken:   { type: String },
     resetPasswordExpires: { type: Date },
   },

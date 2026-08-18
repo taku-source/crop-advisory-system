@@ -2,8 +2,8 @@ const axios = require('axios');
 
 class NasaPowerService {
   constructor() {
-    // NASA POWER API endpoint
-    this.baseUrl = 'https://power.larc.nasa.gov/api/v1/timeseries';
+    // NASA POWER daily point API endpoint (current contract as of 2025)
+    this.baseUrl = 'https://power.larc.nasa.gov/api/temporal/daily/point';
     // Parameters for agricultural data
     this.parameters = ['T2M', 'PRECTOT', 'RH2M'];  // Temperature, precipitation, humidity
   }
@@ -23,16 +23,15 @@ class NasaPowerService {
         throw new Error('Location must be within Zimbabwe boundaries');
       }
 
-      const url = `${this.baseUrl}`;
+      const url = this.baseUrl;
       const params = {
+        latitude,
+        longitude,
         start: startDate,
         end: endDate,
-        lat: latitude,
-        lon: longitude,
         parameters: this.parameters.join(','),
-        community: 'ag',
-        format: 'json',
-        user: 'crop-advisory-system'  // Descriptive identifier for NASA POWER usage tracking
+        community: 'AG',
+        format: 'JSON'
       };
 
       const response = await axios.get(url, { params });
@@ -60,14 +59,13 @@ class NasaPowerService {
         throw new Error('Location must be within Zimbabwe boundaries');
       }
 
-      const url = `https://power.larc.nasa.gov/api/v1/climatology`;
+      const url = 'https://power.larc.nasa.gov/api/temporal/monthly/point';
       const params = {
-        lat: latitude,
-        lon: longitude,
+        latitude,
+        longitude,
         parameters: this.parameters.join(','),
-        community: 'ag',
-        format: 'json',
-        user: 'crop-advisory-system'
+        community: 'AG',
+        format: 'JSON'
       };
 
       const response = await axios.get(url, { params });
@@ -89,23 +87,26 @@ class NasaPowerService {
    * @returns {Object} - Formatted weather data
    */
   formatWeatherData(properties) {
-    const daily = properties.daily || {};
-    const dates = Object.keys(daily.T2M || {});
-    
+    const parameterData = properties.parameter || properties.daily || {};
+    const tempMap = parameterData.T2M || {};
+    const rainMap = parameterData.PRECTOT || {};
+    const humidityMap = parameterData.RH2M || {};
+    const dates = Object.keys(tempMap).sort();
+
     const formattedData = dates.map(dateStr => {
       const dateObj = this.parseNasaPowerDate(dateStr);
       return {
         date: dateObj,
         temperature: {
-          celsius: daily.T2M?.[dateStr] || null,
+          celsius: tempMap[dateStr] ?? null,
           unit: 'C'
         },
         precipitation: {
-          mm: daily.PRECTOT?.[dateStr] || null,
+          mm: rainMap[dateStr] ?? null,
           unit: 'mm'
         },
         humidity: {
-          percent: daily.RH2M?.[dateStr] || null,
+          percent: humidityMap[dateStr] ?? null,
           unit: '%'
         }
       };
@@ -115,8 +116,8 @@ class NasaPowerService {
       data: formattedData,
       location: properties.geometry?.coordinates || null,
       period: {
-        start: dates[0],
-        end: dates[dates.length - 1]
+        start: dates[0] || null,
+        end: dates[dates.length - 1] || null
       }
     };
   }
@@ -127,20 +128,20 @@ class NasaPowerService {
    * @returns {Object} - Formatted climatological averages
    */
   formatClimatologyData(properties) {
-    const monthly = properties.monthly || {};
-    
+    const parameterData = properties.parameter || properties.monthly || {};
+
     const climatology = {};
     for (let month = 1; month <= 12; month++) {
       const monthKey = String(month).padStart(2, '0');
       climatology[`month_${month}`] = {
         temperature: {
-          avg_celsius: monthly.T2M?.[monthKey] || null
+          avg_celsius: parameterData.T2M?.[monthKey] ?? null
         },
         precipitation: {
-          avg_mm: monthly.PRECTOT?.[monthKey] || null
+          avg_mm: parameterData.PRECTOT?.[monthKey] ?? null
         },
         humidity: {
-          avg_percent: monthly.RH2M?.[monthKey] || null
+          avg_percent: parameterData.RH2M?.[monthKey] ?? null
         }
       };
     }

@@ -40,6 +40,9 @@ export const getAdvisories    = (p)    => api.get('/advisories', { params: p });
 export const createAdvisory   = (d)    => api.post('/advisories', d);
 export const updateAdvisory   = (id,d) => api.put(`/advisories/${id}`, d);
 export const deleteAdvisory   = (id)   => api.delete(`/advisories/${id}`);
+export const getContextualAdvisories = () => api.get('/advisories-contextual/farmer');
+export const getFarmerWeather = (farmerId) => api.get(`/advisories-contextual/weather/${farmerId}`);
+export const getFarmerClimate = (farmerId) => api.get(`/advisories-contextual/climate/${farmerId}`);
 
 // ── Diseases ──────────────────────────────────────────────────────────────────
 export const getDiseases    = (p)    => api.get('/diseases', { params: p });
@@ -47,6 +50,8 @@ export const createDisease  = (d)    => api.post('/diseases', d);
 export const updateDisease  = (id,d) => api.put(`/diseases/${id}`, d);
 export const deleteDisease  = (id)   => api.delete(`/diseases/${id}`);
 export const identifyDisease = (data) => api.post('/diseases/identify', data);
+export const matchSymptoms = (data) => api.post('/diseases-symptom-match/match-symptoms', data);
+export const getCropSymptoms = (crop) => api.get(`/diseases-symptom-match/symptoms/${crop}`);
 
 // ── Records ───────────────────────────────────────────────────────────────────
 export const getRecords      = (params) => api.get('/records', { params });

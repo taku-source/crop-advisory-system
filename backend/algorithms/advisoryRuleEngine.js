@@ -1,6 +1,6 @@
 const AgriculturalKnowledge = require('../models/AgriculturalKnowledge');
 const SoilData = require('../models/SoilData');
-const nasaPowerService = require('./nasaPowerService');
+const nasaPowerService = require('../services/nasaPowerService');
 
 class AdvisoryRuleEngine {
   /**

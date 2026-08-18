@@ -6,9 +6,43 @@ const nasaPowerService = require('../services/nasaPowerService');
 const User = require('../models/User');
 
 /**
- * GET /api/advisories/contextual/farmer
+ * GET /api/advisories-contextual/farmer
  * Get contextual advisories for logged-in farmer
  */
+router.get('/farmer', protect, async (req, res) => {
+  try {
+    // Get farmer's profile
+    const farmer = await User.findById(req.user.id);
+    
+    if (!farmer) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!farmer.primaryCrop) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please complete your profile by selecting a primary crop' 
+      });
+    }
+
+    // Generate contextual advisories
+    const advisories = await advisoryRuleEngine.generateContextualAdvisories(farmer);
+
+    res.json({
+      success: true,
+      count: advisories.length,
+      data: advisories
+    });
+  } catch (error) {
+    console.error('Error fetching contextual advisories:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: `Error generating advisories: ${error.message}` 
+    });
+  }
+});
+
+// Backward-compatible alias for earlier route naming
 router.get('/contextual/farmer', protect, async (req, res) => {
   try {
     // Get farmer's profile
