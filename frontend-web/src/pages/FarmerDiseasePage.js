@@ -104,7 +104,7 @@ export default function FarmerDiseasePage() {
                   </div>
                   <Chip color={item.matchScore >= 70 ? 'green' : item.matchScore >= 40 ? 'orange' : 'grey'}>{item.matchScore}%</Chip>
                 </div>
-                <div style={{ color: '#555', lineHeight: 1.7 }}>
+                <div style={{ color: '#ffffff', lineHeight: 1.7 }}>
                   <p><strong>Symptoms matched:</strong> {item.matchedSymptoms}</p>
                   <p><strong>Description:</strong> {item.disease.description}</p>
                   <p><strong>Treatment:</strong> {item.disease.treatment}</p>

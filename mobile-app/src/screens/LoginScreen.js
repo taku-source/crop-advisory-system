@@ -88,7 +88,7 @@ const s = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: 20, padding: 24 },
   cardTitle: { fontSize: 22, fontWeight: '800', color: '#1a1a1a' },
   cardSub: { fontSize: 13, color: '#aaa', marginBottom: 20, marginTop: 2 },
-  label: { fontSize: 11, fontWeight: '700', color: '#555', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6, marginTop: 12 },
+  label: { fontSize: 11, fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6, marginTop: 12 },
   input: { borderWidth: 1.5, borderColor: '#e0e0e0', borderRadius: 10, padding: 13, fontSize: 14, backgroundColor: '#fafafa', marginBottom: 0 },
   passRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   eyeBtn: { padding: 10 },

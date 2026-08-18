@@ -48,7 +48,7 @@ export default function DashboardScreen({ navigation }) {
     { label: 'Knowledge\nBase', emoji: '📚', screen: 'Knowledge' },
   ];
 
-  const TYPE_COLORS = { Advisory: '#1565c0', 'Disease Alert': '#c62828', Reminder: '#e65100', Announcement: '#555' };
+  const TYPE_COLORS = { Advisory: '#1565c0', 'Disease Alert': '#c62828', Reminder: '#e65100', Announcement: '#ffffff' };
 
   if (loading) return (
     <View style={s.center}>

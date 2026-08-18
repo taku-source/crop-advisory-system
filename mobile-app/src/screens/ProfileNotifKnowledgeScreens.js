@@ -335,7 +335,7 @@ export function NotificationsScreen() {
 
   useEffect(() => { fetch(); }, []);
 
-  const TYPE_COLORS = { Advisory: '#1565c0', 'Disease Alert': '#c62828', Reminder: '#e65100', Announcement: '#555' };
+  const TYPE_COLORS = { Advisory: '#1565c0', 'Disease Alert': '#c62828', Reminder: '#e65100', Announcement: '#ffffff' };
   const TYPE_ICONS  = { Advisory: '📋', 'Disease Alert': '⚠️', Reminder: '⏰', Announcement: '📣' };
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={GREEN} /></View>;
@@ -351,7 +351,7 @@ export function NotificationsScreen() {
       {notifications.map((n) => (
         <View key={n._id} style={[s.notifCard, { borderLeftColor: TYPE_COLORS[n.type] || '#ccc' }]}>
           <View style={s.notifTop}>
-            <Text style={[s.notifType, { color: TYPE_COLORS[n.type] || '#555' }]}>
+            <Text style={[s.notifType, { color: TYPE_COLORS[n.type] || '#ffffff' }]}>
               {TYPE_ICONS[n.type]} {n.type}
             </Text>
             <Text style={s.notifDate}>{new Date(n.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</Text>
@@ -457,7 +457,7 @@ const s = StyleSheet.create({
   tabText: { fontSize: 13, color: '#888', fontWeight: '600' },
   tabTextActive: { color: GREEN },
   formSection: { padding: 16 },
-  label: { fontSize: 11, fontWeight: '700', color: '#555', marginBottom: 5, marginTop: 12, textTransform: 'uppercase', letterSpacing: 0.3 },
+  label: { fontSize: 11, fontWeight: '700', color: '#ffffff', marginBottom: 5, marginTop: 12, textTransform: 'uppercase', letterSpacing: 0.3 },
   input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 12, fontSize: 14, backgroundColor: '#fafafa' },
   inputDisabled: { backgroundColor: '#f0f0f0', color: '#aaa' },
   btnPrimary: { backgroundColor: GREEN, padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 20 },
@@ -482,14 +482,14 @@ const s = StyleSheet.create({
   notifType: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.3 },
   notifDate: { fontSize: 11, color: '#aaa' },
   notifTitle: { fontSize: 15, fontWeight: '700', color: '#1a1a1a', marginBottom: 4 },
-  notifMsg: { fontSize: 13, color: '#555', lineHeight: 19 },
+  notifMsg: { fontSize: 13, color: '#ffffff', lineHeight: 19 },
   // Knowledge
   toolbar: { backgroundColor: '#fff', padding: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
   searchInput: { backgroundColor: '#f0f0f0', borderRadius: 10, padding: 10, fontSize: 14 },
   catFilter: { backgroundColor: '#fff', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee', flexGrow: 0 },
   catChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1, borderColor: '#ddd', marginRight: 8, backgroundColor: '#fff' },
   catChipActive: { backgroundColor: GREEN, borderColor: GREEN },
-  catChipText: { fontSize: 12, color: '#555', fontWeight: '600' },
+  catChipText: { fontSize: 12, color: '#ffffff', fontWeight: '600' },
   articleCard: { backgroundColor: '#fff', marginHorizontal: 14, marginVertical: 6, borderRadius: 12, padding: 16, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
   articleTop: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   articleCat: { fontSize: 11, color: '#888', fontWeight: '700', textTransform: 'uppercase', flex: 1 },

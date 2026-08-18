@@ -442,11 +442,11 @@ function LoginPage({ onSwitchMode, onHome }) {
         </div>
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#555', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>Email</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#ffffff', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>Email</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '14px 16px', border: '1px solid #2f4d3c', borderRadius: 14, fontSize: 14, outline: 'none', boxSizing: 'border-box', background: '#122916', color: '#e6f6ea' }} placeholder="admin@cropadvisory.zw" autoComplete="email" />
           </div>
           <div style={{ marginBottom: 22 }}>
-            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#555', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>Password</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#ffffff', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>Password</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: '14px 16px', border: '1px solid #2f4d3c', borderRadius: 14, fontSize: 14, outline: 'none', boxSizing: 'border-box', background: '#122916', color: '#e6f6ea' }} placeholder="••••••••" autoComplete="current-password" />
           </div>
 

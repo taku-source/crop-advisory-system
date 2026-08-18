@@ -32,7 +32,7 @@ export default function FarmerDashboardPage({ onNavigate }) {
   const now = new Date();
   const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
 
-  if (loading) return <div style={{ padding: 32, color: '#555' }}>Loading dashboard...</div>;
+  if (loading) return <div style={{ padding: 32, color: '#ffffff' }}>Loading dashboard...</div>;
 
   return (
     <div>
@@ -84,7 +84,7 @@ export default function FarmerDashboardPage({ onNavigate }) {
                   </div>
                   <div style={{ textAlign: 'right' }}><strong>{new Date(advisory.recommendedDate).toLocaleDateString('en-GB')}</strong></div>
                 </div>
-                <div style={{ marginTop: 8, color: '#555', fontSize: 13 }}>{advisory.description}</div>
+                <div style={{ marginTop: 8, color: '#ffffff', fontSize: 13 }}>{advisory.description}</div>
               </div>
             ))}
         </section>

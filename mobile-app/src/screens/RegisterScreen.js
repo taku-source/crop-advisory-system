@@ -96,7 +96,7 @@ const s = StyleSheet.create({
   backBtn: { color: GREEN, fontSize: 15, fontWeight: '600' },
   pageTitle: { fontSize: 24, fontWeight: '800', color: '#1a1a1a', marginTop: 10 },
   pageSub: { fontSize: 13, color: '#888', lineHeight: 19, marginTop: 4, marginBottom: 20 },
-  label: { fontSize: 11, fontWeight: '700', color: '#555', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6, marginTop: 14 },
+  label: { fontSize: 11, fontWeight: '700', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6, marginTop: 14 },
   input: { borderWidth: 1.5, borderColor: '#e0e0e0', borderRadius: 10, padding: 13, fontSize: 14, backgroundColor: '#fff' },
   infoBox: { backgroundColor: '#e8f5e9', borderRadius: 10, padding: 14, marginTop: 18 },
   infoText: { fontSize: 12, color: '#2e7d32', lineHeight: 18 },

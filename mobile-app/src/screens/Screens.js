@@ -342,6 +342,6 @@ const s = StyleSheet.create({
   severityBadge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
   severityText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
   matchScore: { color: GREEN, fontWeight: '600', marginBottom: 10 },
-  resultLabel: { fontSize: 13, fontWeight: 'bold', color: '#555', marginTop: 10, textTransform: 'uppercase' },
+  resultLabel: { fontSize: 13, fontWeight: 'bold', color: '#ffffff', marginTop: 10, textTransform: 'uppercase' },
   resultText: { fontSize: 14, color: '#444', lineHeight: 20, marginTop: 2 },
 });

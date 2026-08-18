@@ -80,7 +80,7 @@ export default function DiseasesPage() {
         </div>
       ),
     },
-    { label: 'Treatment', render: (d) => <span style={{ fontSize: 12, color: '#555', display: 'block', maxWidth: 200 }}>{d.treatment}</span> },
+    { label: 'Treatment', render: (d) => <span style={{ fontSize: 12, color: '#ffffff', display: 'block', maxWidth: 200 }}>{d.treatment}</span> },
     {
       label: 'Actions',
       render: (d) => (

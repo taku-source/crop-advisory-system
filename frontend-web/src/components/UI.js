@@ -35,7 +35,7 @@ export function Modal({ title, onClose, children, width = 520 }) {
 export function Field({ label, children }) {
   return (
     <div style={{ marginBottom: 14 }}>
-      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#555', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</label>
+      <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#ffffff', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</label>
       {children}
     </div>
   );
