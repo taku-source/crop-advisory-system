@@ -149,6 +149,7 @@ router.get('/profile', protect, async (req, res) => {
         email: user.email,
         phone: user.phone,
         district: user.district,
+        ward: user.ward,
         farmName: user.farmName,
         farmSize: user.farmSize,
         location: user.location,

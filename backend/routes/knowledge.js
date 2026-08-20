@@ -257,4 +257,52 @@ router.post('/diseases', protect, authorize('admin'), async (req, res) => {
   }
 });
 
+router.put('/agricultural/:id', protect, authorize('admin'), async (req, res) => {
+  try {
+    const knowledge = await AgriculturalKnowledge.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!knowledge) return res.status(404).json({ success: false, message: 'Agricultural knowledge not found' });
+    res.json({ success: true, data: knowledge });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+router.put('/soil/:id', protect, authorize('admin'), async (req, res) => {
+  try {
+    const soil = await SoilData.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!soil) return res.status(404).json({ success: false, message: 'Soil data not found' });
+    res.json({ success: true, data: soil });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+router.put('/diseases/:id', protect, authorize('admin'), async (req, res) => {
+  try {
+    const disease = await DiseaseKnowledge.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!disease) return res.status(404).json({ success: false, message: 'Disease not found' });
+    res.json({ success: true, data: disease });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+router.delete('/agricultural/:id', protect, authorize('admin'), async (req, res) => {
+  const result = await AgriculturalKnowledge.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
+  if (!result) return res.status(404).json({ success: false, message: 'Agricultural knowledge not found' });
+  res.json({ success: true, data: result });
+});
+
+router.delete('/soil/:id', protect, authorize('admin'), async (req, res) => {
+  const result = await SoilData.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
+  if (!result) return res.status(404).json({ success: false, message: 'Soil data not found' });
+  res.json({ success: true, data: result });
+});
+
+router.delete('/diseases/:id', protect, authorize('admin'), async (req, res) => {
+  const result = await DiseaseKnowledge.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
+  if (!result) return res.status(404).json({ success: false, message: 'Disease not found' });
+  res.json({ success: true, data: result });
+});
+
 module.exports = router;

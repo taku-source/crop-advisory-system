@@ -148,7 +148,7 @@ If weather data retrieved:
   IF rainfall > 50mm THEN
     Recommend "Delay fertiliser application until drainage occurs"
   ELSE IF rainfall < 5mm AND stage = "Critical" THEN
-    Recommend "Ensure adequate irrigation or supplementary watering"
+    Recommend delaying planting, conserving soil moisture, and monitoring rainfall because this system targets rain-fed seasonal farmers
   ENDIF
   
   Calculate average temperature

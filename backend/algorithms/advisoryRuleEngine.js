@@ -11,12 +11,12 @@ class AdvisoryRuleEngine {
   async generateContextualAdvisories(farmer) {
     try {
       // Validate farmer has required fields
-      if (!farmer.primaryCrop) {
+      if (!(farmer.primaryCrop || farmer.primaryCrops?.[0])) {
         throw new Error('Farmer must have a primary crop selected');
       }
 
       // Step 1: Get agricultural knowledge for farmer's crop
-      const cropKnowledge = await this.getCropKnowledge(farmer.primaryCrop, 'III');
+      const cropKnowledge = await this.getCropKnowledge(farmer.primaryCrop || farmer.primaryCrops[0], 'III');
       if (!cropKnowledge) {
         return [];  // No knowledge available for this crop
       }
@@ -28,7 +28,7 @@ class AdvisoryRuleEngine {
       let weatherData = null;
       if (farmer.location && farmer.location.latitude && farmer.location.longitude) {
         try {
-          weatherData = await nasaPowerService.getRecentWeatherData(
+          weatherData = await nasaPowerService.getContextWeatherData(
             farmer.location.latitude,
             farmer.location.longitude
           );
@@ -134,7 +134,7 @@ class AdvisoryRuleEngine {
     if (farmer.soilType) {
       const soilAdvisories = await this.getSoilSpecificAdvisories(
         farmer.soilType,
-        farmer.primaryCrop,
+        farmer.primaryCrop || farmer.primaryCrops[0],
         currentStage
       );
       advisories.push(...soilAdvisories);
@@ -167,12 +167,14 @@ class AdvisoryRuleEngine {
    */
   getStageActivities(cropKnowledge, stageName) {
     const stageAliases = {
-      seedling: ['seedling', 'germination', 'emergence-2-weeks'],
-      germination: ['seedling', 'germination', 'emergence-2-weeks'],
+      seedling: ['seedling', 'germination', 'emergence-2-weeks', 'establishment'],
+      germination: ['seedling', 'germination', 'emergence-2-weeks', 'establishment'],
       vegetative: ['vegetative', '3-6-weeks', 'vegetative-tasseling'],
       flowering: ['flowering', 'reproductive', 'vegetative-tasseling', 'tasseling-grain-fill'],
-      grain_fill: ['grain_fill', 'grain fill', 'tasseling-grain-fill', 'maturity'],
-      mature: ['mature', 'maturity', 'harvest', 'harvest-storage']
+      grain_fill: ['grain_fill', 'grain fill', 'tasseling-grain-fill', 'grainorpodformation'],
+      mature: ['mature', 'maturity', 'harvest', 'harvest-storage', 'harvesting'],
+      establishment: ['establishment', 'germination', 'seedling'],
+      grainorpodformation: ['grainorpodformation', 'grain fill', 'pod filling', 'maturity']
     };
     const acceptedNames = stageAliases[stageName.toLowerCase()] || [stageName.toLowerCase()];
     const stage = (cropKnowledge.growthStages || []).find(
@@ -270,7 +272,7 @@ class AdvisoryRuleEngine {
       advisories.push({
         crop: crop,
         activity: 'Weather Response - Dry Conditions',
-        description: 'Low rainfall observed. Ensure adequate irrigation if available. Mulch to conserve soil moisture. Monitor for pest/disease stress.',
+        description: 'Low rainfall observed in this rain-fed farming context. Delay planting until effective rainfall and adequate soil moisture are established. Use mulch and conservation practices to reduce moisture loss. Monitor for pest/disease stress.',
         contextualReason: `Dry conditions (${recentRainfall}mm rainfall in last 3 days). Water management needed.`,
         source: 'NASA POWER Weather Data'
       });

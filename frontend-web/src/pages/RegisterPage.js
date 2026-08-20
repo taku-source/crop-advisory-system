@@ -8,12 +8,11 @@ const DISTRICTS = [
 ];
 
 const SOIL_TYPES = ['Sandy', 'Sandy loam', 'Loam', 'Clay loam', 'Clay'];
-const IRRIGATION_METHODS = ['Rain-fed', 'Drip irrigation', 'Furrow irrigation', 'Sprinkler irrigation'];
 
 export default function RegisterPage({ onSwitchMode, onHome }) {
   const { register } = useAuth();
   const [form, setForm] = useState({
-    fullName: '', email: '', phone: '', password: '', district: '', farmName: '', farmSize: '', soilType: '', irrigationMethod: '', location: { latitude: null, longitude: null },
+    fullName: '', email: '', phone: '', password: '', district: '', ward: '', farmName: '', farmSize: '', soilType: '', location: { latitude: null, longitude: null },
   });
   const [loading, setLoading] = useState(false);
 
@@ -23,13 +22,13 @@ export default function RegisterPage({ onSwitchMode, onHome }) {
     if (!navigator.geolocation) return toast.error('Location services are not supported by this browser');
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => setForm((prev) => ({ ...prev, location: { latitude: coords.latitude, longitude: coords.longitude } })),
-      () => toast.error('Please allow location access to continue')
+      () => toast.error('Location was not captured. You can register and add GPS later from your profile.')
     );
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const required = ['fullName', 'email', 'phone', 'password', 'district', 'farmSize', 'soilType', 'irrigationMethod'];
+    const required = ['fullName', 'email', 'phone', 'password', 'district', 'ward', 'farmSize', 'soilType'];
     const missing = required.filter((key) => !form[key]?.trim());
     if (missing.length > 0) {
       return toast.error(`Please fill: ${missing.join(', ')}`);
@@ -74,6 +73,8 @@ export default function RegisterPage({ onSwitchMode, onHome }) {
             </select>
           </Field>
 
+          <Field label="Ward *"><Input value={form.ward} onChange={update('ward')} placeholder="Ward name or number" /></Field>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
             <Field label="Farm Name"><Input value={form.farmName} onChange={update('farmName')} placeholder="My Farm" /></Field>
             <Field label="Farm Size"><Input value={form.farmSize} onChange={update('farmSize')} placeholder="e.g. 2 ha" /></Field>
@@ -84,12 +85,6 @@ export default function RegisterPage({ onSwitchMode, onHome }) {
               <select value={form.soilType} onChange={update('soilType')} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, border: '1px solid #2f4d3c', background: '#122916', color: '#e6f6ea' }}>
                 <option value="">Select soil type</option>
                 {SOIL_TYPES.map((soil) => <option key={soil} value={soil}>{soil}</option>)}
-              </select>
-            </Field>
-            <Field label="Irrigation Method *">
-              <select value={form.irrigationMethod} onChange={update('irrigationMethod')} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, border: '1px solid #2f4d3c', background: '#122916', color: '#e6f6ea' }}>
-                <option value="">Select method</option>
-                {IRRIGATION_METHODS.map((method) => <option key={method} value={method}>{method}</option>)}
               </select>
             </Field>
           </div>

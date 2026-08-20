@@ -97,7 +97,7 @@ router.get('/weather/:farmerId', protect, async (req, res) => {
     }
 
     // Get weather data from NASA POWER
-    const weatherData = await nasaPowerService.getRecentWeatherData(
+    const weatherData = await nasaPowerService.getContextWeatherData(
       farmer.location.latitude,
       farmer.location.longitude
     );
@@ -175,7 +175,7 @@ router.get('/seasonal-plan', protect, async (req, res) => {
     let weatherData = null;
     if (farmer.location && farmer.location.latitude && farmer.location.longitude) {
       try {
-        weatherData = await nasaPowerService.getRecentWeatherData(
+        weatherData = await nasaPowerService.getContextWeatherData(
           farmer.location.latitude,
           farmer.location.longitude
         );

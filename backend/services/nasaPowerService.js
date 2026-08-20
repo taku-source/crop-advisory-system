@@ -206,6 +206,50 @@ class NasaPowerService {
     }
   }
 
+  async getForecastWeatherData(latitude, longitude) {
+    if (!this.isZimbabweLocation(latitude, longitude)) {
+      throw new Error('Location must be within Zimbabwe boundaries');
+    }
+
+    const response = await axios.get('https://api.open-meteo.com/v1/forecast', {
+      params: {
+        latitude,
+        longitude,
+        forecast_days: 7,
+        daily: 'temperature_2m_mean,precipitation_sum,relative_humidity_2m_mean,weather_code',
+        timezone: 'auto'
+      }
+    });
+    const daily = response.data?.daily;
+    if (!daily?.time) throw new Error('Invalid forecast response');
+
+    return {
+      source: 'Open-Meteo Forecast API',
+      data: daily.time.map((date, index) => ({
+        date: new Date(date),
+        temperature: { celsius: daily.temperature_2m_mean?.[index] ?? null, unit: 'C' },
+        precipitation: { mm: daily.precipitation_sum?.[index] ?? null, unit: 'mm' },
+        humidity: { percent: daily.relative_humidity_2m_mean?.[index] ?? null, unit: '%' },
+        weatherCode: daily.weather_code?.[index] ?? null
+      })),
+      period: { start: daily.time[0], end: daily.time[daily.time.length - 1] }
+    };
+  }
+
+  async getContextWeatherData(latitude, longitude) {
+    const [recent, forecast] = await Promise.all([
+      this.getRecentWeatherData(latitude, longitude),
+      this.getForecastWeatherData(latitude, longitude)
+    ]);
+    return {
+      data: [...(recent.data || []), ...(forecast.data || [])],
+      recent,
+      forecast,
+      location: recent.location,
+      sources: ['NASA POWER', 'Open-Meteo Forecast API']
+    };
+  }
+
   /**
    * Format date to NASA POWER format (YYYYMMDD)
    * @param {Date} date

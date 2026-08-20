@@ -126,7 +126,7 @@ router.get('/check-status', protect, async (req, res) => {
         hasLocation: !!(farmer.location && farmer.location.latitude && farmer.location.longitude),
         hasSoilType: !!farmer.soilType,
         hasCrop: !!farmer.primaryCrop,
-        hasIrrigation: !!farmer.irrigationMethod
+        farmingSystem: 'Rain-fed seasonal farming'
       }
     });
   } catch (error) {

@@ -93,7 +93,7 @@ class SeasonalPlanGenerator {
         farmerContext: {
           location: farmer.location,
           soilType: farmer.soilType,
-          irrigationMethod: farmer.irrigationMethod,
+          farmingSystem: 'Rain-fed seasonal farming',
           farmSize: farmer.farmSize
         },
         currentStatus: {

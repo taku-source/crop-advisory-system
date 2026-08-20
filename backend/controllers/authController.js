@@ -8,8 +8,8 @@ const generateToken = (id) =>
 exports.register = async (req, res) => {
   try {
     const {
-      fullName, email, phone, password, district, farmName, farmSize,
-      soilType, irrigationMethod, location
+      fullName, email, phone, password, district, ward, farmName, farmSize,
+      soilType, location
     } = req.body;
 
     if (await User.findOne({ email })) {
@@ -22,10 +22,10 @@ exports.register = async (req, res) => {
       phone,
       password,
       district,
+      ward,
       farmName,
       farmSize,
       soilType,
-      irrigationMethod,
       location: location ? { ...location, lastUpdated: new Date() } : undefined
     });
 

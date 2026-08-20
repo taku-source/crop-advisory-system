@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema(
     
     // Farm profile information for contextual advice
     soilType:       { type: String, default: '' },      // e.g., "Sandy loam", "Clay"
-    irrigationMethod: { type: String, default: 'Rain-fed', trim: true },
     primaryCrop:    { type: String, default: '' },
     primaryCrops:   { type: [{ type: String }], default: [], validate: { validator: (crops) => crops.length <= 3, message: 'Select no more than three crops' } },
     plantingDate:   { type: Date, default: null },

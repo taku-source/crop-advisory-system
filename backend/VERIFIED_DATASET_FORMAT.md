@@ -6,23 +6,27 @@ The advisory system accepts verified Region III records in JSON format. Keep the
 
 ```json
 {
-  "agriculturalKnowledge": [],
-  "soilData": [],
-  "diseaseKnowledge": []
+  "datasetMetadata": { "version": "5.0.0", "includedCrops": [] },
+  "sources": [],
+  "agricultural_knowledge": [],
+  "soil_data": [],
+  "disease_knowledge": []
 }
 ```
 
-The arrays use the fields defined by:
+The importer also accepts the legacy `crops`, `soilData`, and `diseaseKnowledge` shape. The v5 arrays use nested source objects on each verified record and are normalized into the MongoDB models defined by:
 
 - `models/AgriculturalKnowledge.js`
 - `models/SoilData.js`
 - `models/DiseaseKnowledge.js`
 
-Every record must include:
+Every v5 record must include:
 
-- `source`: organization or dataset name
-- `reference`: report, publication, URL, version, or page reference
-- `agroEcologicalRegion`: `III` for Region III data
+- crop or disease identity and `region: "III"`
+- source organisation, title, year, section, and URL through the referenced source object
+- weighted disease symptoms where applicable
+
+The importer preserves source organisations, references, URLs, years, sections, source IDs, dataset name, and dataset version on every imported record.
 
 ## Import
 
