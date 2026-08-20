@@ -4,6 +4,7 @@ const { protect } = require('../middleware/auth');
 const advisoryRuleEngine = require('../algorithms/advisoryRuleEngine');
 const nasaPowerService = require('../services/nasaPowerService');
 const User = require('../models/User');
+const SeasonalPlanGenerator = require('../algorithms/seasonalPlanGenerator');
 
 /**
  * GET /api/advisories-contextual/farmer
@@ -18,7 +19,7 @@ router.get('/farmer', protect, async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    if (!farmer.primaryCrop) {
+    if (!(farmer.primaryCrops?.length || farmer.primaryCrop)) {
       return res.status(400).json({ 
         success: false, 
         message: 'Please complete your profile by selecting a primary crop' 
@@ -52,7 +53,7 @@ router.get('/contextual/farmer', protect, async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    if (!farmer.primaryCrop) {
+    if (!(farmer.primaryCrops?.length || farmer.primaryCrop)) {
       return res.status(400).json({ 
         success: false, 
         message: 'Please complete your profile by selecting a primary crop' 
@@ -147,6 +148,55 @@ router.get('/climate/:farmerId', protect, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: `Error fetching climatology data: ${error.message}` 
+    });
+  }
+});
+
+/**
+ * GET /api/advisories-contextual/seasonal-plan
+ * Get complete seasonal plan for farmer's selected crop
+ */
+router.get('/seasonal-plan', protect, async (req, res) => {
+  try {
+    const farmer = await User.findById(req.user.id);
+
+    if (!farmer) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (!(farmer.primaryCrops?.length || farmer.primaryCrop)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select a primary crop first'
+      });
+    }
+
+    // Get weather data for context
+    let weatherData = null;
+    if (farmer.location && farmer.location.latitude && farmer.location.longitude) {
+      try {
+        weatherData = await nasaPowerService.getRecentWeatherData(
+          farmer.location.latitude,
+          farmer.location.longitude
+        );
+      } catch (weatherError) {
+        console.warn('Could not fetch weather data:', weatherError);
+      }
+    }
+
+    // Generate seasonal plan
+    const planGenerator = new SeasonalPlanGenerator();
+    const seasonalPlan = await planGenerator.generateSeasonalPlans(farmer, weatherData);
+
+    res.json({
+      success: true,
+      data: seasonalPlan
+    });
+  } catch (error) {
+    console.error('Error generating seasonal plan:', error);
+    res.status(500).json({
+      success: false,
+      message: `Error generating seasonal plan: ${error.message}`
     });
   }
 });

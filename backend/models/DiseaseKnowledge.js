@@ -54,6 +54,10 @@ const diseaseKnowledgeSchema = new mongoose.Schema(
     // Reference information
     source:             { type: String, default: '' },
     reference:         { type: String, default: '' },
+    sourceIds:         [{ type: String }],
+    datasetName:       { type: String, default: '' },
+    datasetVersion:    { type: String, default: '' },
+    algorithmNote:     { type: String, default: '' },
     imageUrl:          { type: String, default: null },
     
     isActive:           { type: Boolean, default: true }

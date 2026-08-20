@@ -14,6 +14,7 @@ import AdvisoryListScreen      from './src/screens/AdvisoryListScreen';
 import DiseaseIdentifierScreen from './src/screens/DiseaseIdentifierScreen';
 import RecordsScreen           from './src/screens/RecordsScreen';
 import { ProfileScreen, NotificationsScreen, KnowledgeScreen } from './src/screens/ProfileNotifKnowledgeScreens';
+import CropSelectionScreen from './src/screens/CropSelectionScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab   = createBottomTabNavigator();
@@ -65,7 +66,9 @@ function RootNavigator() {
   );
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {user ? <Stack.Screen name="Main" component={FarmerTabs} />
+      {user ? (user.role !== 'admin' && !user.hasSelectedCrop && !user.primaryCrop
+        ? <Stack.Screen name="CropSelection" component={CropSelectionScreen} />
+        : <Stack.Screen name="Main" component={FarmerTabs} />)
              : <><Stack.Screen name="Login" component={LoginScreen} /><Stack.Screen name="Register" component={RegisterScreen} /></>}
     </Stack.Navigator>
   );

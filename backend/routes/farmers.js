@@ -10,7 +10,7 @@ const nasaPowerService = require('../services/nasaPowerService');
  */
 router.put('/profile', protect, async (req, res) => {
   try {
-    const { location, soilType, primaryCrop, plantingDate } = req.body;
+    const { location, soilType, primaryCrop, primaryCrops, plantingDate } = req.body;
 
     const updateData = {};
 
@@ -39,6 +39,10 @@ router.put('/profile', protect, async (req, res) => {
     // Update primary crop if provided
     if (primaryCrop) {
       updateData.primaryCrop = primaryCrop;
+    }
+    if (Array.isArray(primaryCrops) && primaryCrops.length > 0) {
+      updateData.primaryCrops = primaryCrops.slice(0, 3);
+      updateData.primaryCrop = primaryCrops[0];
     }
 
     // Add planting date if provided
@@ -145,7 +149,6 @@ router.get('/profile', protect, async (req, res) => {
         email: user.email,
         phone: user.phone,
         district: user.district,
-        ward: user.ward,
         farmName: user.farmName,
         farmSize: user.farmSize,
         location: user.location,

@@ -72,8 +72,11 @@ npm install
 cp .env.example .env
 # Edit .env: set MONGODB_URI, JWT_SECRET, Firebase credentials
 
-# Seed the database (creates admin + test farmer + sample data)
+# Seed base demo records
 npm run seed
+
+# Import the verified Region III dataset after base seeding
+npm run import:region3 -- "D:\\Downloads\\verified-region-iii-dataset (1).json"
 
 # Start the server
 npm run dev        # development (nodemon)
@@ -92,8 +95,9 @@ npm start          # production
 cd mobile-app
 npm install
 
-# Update the API base URL in src/api.js:
-# const BASE_URL = 'http://YOUR_SERVER_IP:5000/api';
+# Copy .env.example to .env and set EXPO_PUBLIC_API_URL.
+# Android emulator: http://10.0.2.2:5000/api
+# Physical phone: http://YOUR_COMPUTER_LAN_IP:5000/api
 
 npx expo start
 # Scan QR code with Expo Go app on your phone
@@ -108,6 +112,24 @@ cd frontend-web
 npm install
 npm start
 ```
+
+### Verified dataset import
+
+If you have a verified CSV, JSON, Excel, or report dataset, convert or provide it in the format described in `backend/VERIFIED_DATASET_FORMAT.md`. The importer keeps the source and reference on every record and rejects records without provenance.
+
+```bash
+cd backend
+npm run import:verified -- ../path/to/verified-dataset.json
+```
+
+### Runtime configuration
+
+- `MONGODB_URI`: required database connection string.
+- `JWT_SECRET`: required secret used to sign login tokens; replace the example value.
+- `FRONTEND_URL`: web origin allowed by the backend CORS policy.
+- `EXPO_PUBLIC_API_URL`: mobile app URL for the backend; required for a physical device or deployed API.
+- NASA POWER: no API key is required. It supplies historical and recent environmental observations, not a guaranteed short-term forecast.
+- Firebase variables: required only when push notifications are enabled.
 
 ---
 

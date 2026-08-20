@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     phone:     { type: String, required: true, trim: true },
     password:  { type: String, required: true, minlength: 6 },
     district:  { type: String, required: true },
-    ward:      { type: String, required: true },
+    ward:      { type: String, default: '', trim: true },
     farmName:  { type: String, default: '' },
     farmSize:  { type: String, default: '' },
     role:      { type: String, enum: ['farmer', 'admin'], default: 'farmer' },
@@ -23,10 +23,14 @@ const userSchema = new mongoose.Schema(
     },
     
     // Farm profile information for contextual advice
-    soilType:    { type: String, default: '' },      // e.g., "Sandy loam", "Clay"
-    primaryCrop: { type: String, default: '' },
-    plantingDate: { type: Date, default: null },
+    soilType:       { type: String, default: '' },      // e.g., "Sandy loam", "Clay"
+    irrigationMethod: { type: String, default: 'Rain-fed', trim: true },
+    primaryCrop:    { type: String, default: '' },
+    primaryCrops:   { type: [{ type: String }], default: [], validate: { validator: (crops) => crops.length <= 3, message: 'Select no more than three crops' } },
+    plantingDate:   { type: Date, default: null },
+    cropSelectionDate: { type: Date, default: null },  // When farmer first selects crop after registration
     profileCompleted: { type: Boolean, default: false },
+    hasSelectedCrop: { type: Boolean, default: false }, // Flag for first-login crop selection
     resetPasswordToken:   { type: String },
     resetPasswordExpires: { type: Date },
   },
@@ -44,6 +48,16 @@ userSchema.pre('save', async function (next) {
 // Compare entered password with hashed
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Check if farmer profile is complete enough for advisory generation
+userSchema.methods.isAdvisoryReady = function () {
+  return this.hasSelectedCrop &&
+         (this.primaryCrops?.length > 0 || this.primaryCrop) &&
+         this.soilType &&
+         this.location &&
+         this.location.latitude &&
+         this.location.longitude;
 };
 
 // Remove sensitive fields from JSON output

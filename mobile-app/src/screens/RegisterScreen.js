@@ -4,12 +4,16 @@ import {
   Alert, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
+import * as Location from 'expo-location';
 
 const GREEN = '#2e7d32';
 
 const DISTRICTS = [
-  'Gweru', 'Kwekwe', 'Mvuma', 'Chirumhanzu', 'Shurugwi', 'Gutu', 'Masvingo', 'Buhera', 'Mutare', 'Makoni', 'Wedza', 'Chikomba', 'Sanyati', 'Chegutu', 'Guruve',
+  'Kadoma', 'Chegutu', 'Kwekwe', 'Muronzi', 'Chinhoyi', 'Zvimba', 'Sanyati',
 ];
+
+const SOILS = ['Sandy', 'Sandy loam', 'Loam', 'Clay loam', 'Clay'];
+const IRRIGATION = ['Rain-fed', 'Drip irrigation', 'Furrow irrigation', 'Sprinkler irrigation'];
 
 const FIELDS = [
   { key: 'fullName',  label: 'Full Name *',           required: true },
@@ -17,21 +21,29 @@ const FIELDS = [
   { key: 'phone',     label: 'Phone Number *',         required: true, keyboard: 'phone-pad' },
   { key: 'password',  label: 'Password *',             required: true, secure: true },
   { key: 'district',  label: 'District *',             required: true },
-  { key: 'ward',      label: 'Ward *',                 required: true },
   { key: 'farmName',  label: 'Farm Name' },
-  { key: 'farmSize',  label: 'Farm Size (e.g. 2 ha)' },
+  { key: 'farmSize',  label: 'Farm Size (hectares) *', required: true, keyboard: 'numeric' },
 ];
 
 export default function RegisterScreen({ navigation }) {
   const { register }    = useAuth();
-  const [form, setForm] = useState({ fullName:'', email:'', phone:'', password:'', district:'', ward:'', farmName:'', farmSize:'' });
+  const [form, setForm] = useState({ fullName:'', email:'', phone:'', password:'', district:'', farmName:'', farmSize:'', soilType:'', irrigationMethod:'', location:{ latitude:null, longitude:null } });
   const [loading, setLoading] = useState(false);
 
   const upd = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
 
+  const captureLocation = async () => {
+    const permission = await Location.requestForegroundPermissionsAsync();
+    if (!permission.granted) return Alert.alert('Location required', 'Allow location access to receive local weather advice.');
+    const position = await Location.getCurrentPositionAsync({});
+    setForm((f) => ({ ...f, location: { latitude: position.coords.latitude, longitude: position.coords.longitude } }));
+  };
+
   const handleRegister = async () => {
     const missing = FIELDS.filter((f) => f.required && !form[f.key].trim());
     if (missing.length > 0) return Alert.alert('Required Fields', `Please fill in: ${missing.map((f) => f.label.replace(' *', '')).join(', ')}`);
+    if (!form.soilType || !form.irrigationMethod) return Alert.alert('Farm profile required', 'Please select your soil type and irrigation method.');
+    if (!form.location.latitude) return Alert.alert('Location required', 'Please capture your GPS location.');
     if (form.password.length < 6) return Alert.alert('Password Too Short', 'Password must be at least 6 characters.');
 
     setLoading(true);
@@ -70,8 +82,18 @@ export default function RegisterScreen({ navigation }) {
         </View>
       ))}
 
+      <Text style={s.label}>Soil Type *</Text>
+      <View style={s.optionRow}>{SOILS.map((soil) => <TouchableOpacity key={soil} onPress={() => upd('soilType')(soil)} style={[s.option, form.soilType === soil && s.optionActive]}><Text style={s.optionText}>{soil}</Text></TouchableOpacity>)}</View>
+
+      <Text style={s.label}>Irrigation Method *</Text>
+      <View style={s.optionRow}>{IRRIGATION.map((method) => <TouchableOpacity key={method} onPress={() => upd('irrigationMethod')(method)} style={[s.option, form.irrigationMethod === method && s.optionActive]}><Text style={s.optionText}>{method}</Text></TouchableOpacity>)}</View>
+
+      <TouchableOpacity style={s.locationButton} onPress={captureLocation}>
+        <Text style={s.locationText}>{form.location.latitude ? `Location captured (${form.location.latitude.toFixed(3)}, ${form.location.longitude.toFixed(3)})` : 'Capture GPS location'}</Text>
+      </TouchableOpacity>
+
       <View style={s.infoBox}>
-        <Text style={s.infoText}>📍 District is the local area, and ward is your village/administrative ward inside that district. This helps us send the right local advisories and seasonal guidance.</Text>
+        <Text style={s.infoText}>📍 Capture your GPS location so the app can use local weather context for your seasonal guidance.</Text>
       </View>
 
       <TouchableOpacity style={[s.btnPrimary, loading && s.btnDisabled]} onPress={handleRegister} disabled={loading}>
@@ -106,4 +128,10 @@ const s = StyleSheet.create({
   loginLink: { marginTop: 16, alignItems: 'center' },
   loginText: { fontSize: 13, color: '#888' },
   loginBold: { color: GREEN, fontWeight: '700' },
+  optionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  option: { borderWidth: 1, borderColor: '#d0ddd2', backgroundColor: '#fff', borderRadius: 9, padding: 10 },
+  optionActive: { borderColor: GREEN, backgroundColor: '#e8f5e9' },
+  optionText: { color: '#234b2b', fontSize: 12 },
+  locationButton: { backgroundColor: '#e8f5e9', borderRadius: 10, padding: 14, marginTop: 18, alignItems: 'center' },
+  locationText: { color: GREEN, fontWeight: '700', fontSize: 13 },
 });

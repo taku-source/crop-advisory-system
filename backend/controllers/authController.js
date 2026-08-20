@@ -7,13 +7,27 @@ const generateToken = (id) =>
 // @route  POST /api/auth/register
 exports.register = async (req, res) => {
   try {
-    const { fullName, email, phone, password, district, ward, farmName, farmSize } = req.body;
+    const {
+      fullName, email, phone, password, district, farmName, farmSize,
+      soilType, irrigationMethod, location
+    } = req.body;
 
     if (await User.findOne({ email })) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
 
-    const user = await User.create({ fullName, email, phone, password, district, ward, farmName, farmSize });
+    const user = await User.create({
+      fullName,
+      email,
+      phone,
+      password,
+      district,
+      farmName,
+      farmSize,
+      soilType,
+      irrigationMethod,
+      location: location ? { ...location, lastUpdated: new Date() } : undefined
+    });
 
     res.status(201).json({
       success: true,

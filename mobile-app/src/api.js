@@ -1,9 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Default to Android emulator loopback IP. Change to your server IP when testing on device.
-const BASE_URL = 'http://10.0.2.2:5000/api'; // For Android emulator
-// Use 'http://localhost:5000/api' for local web tests, or set to your machine IP for real devices
+// Set EXPO_PUBLIC_API_URL in mobile-app/.env for a physical device or deployment.
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000/api';
 
 const api = axios.create({ baseURL: BASE_URL });
 
@@ -24,6 +23,12 @@ export const changePassword = (data) => api.put('/auth/change-password', data);
 // ─── Advisories ───────────────────────────────────────────────────────────────
 export const getAdvisories = (params) => api.get('/advisories', { params });
 export const getAdvisory   = (id)     => api.get(`/advisories/${id}`);
+export const getSeasonalPlan = () => api.get('/advisories-contextual/seasonal-plan');
+
+// First-login crop selection
+export const getAvailableCrops = () => api.get('/crop-selection/available-crops');
+export const getCropInfo = (crop) => api.get(`/crop-selection/crop-info/${encodeURIComponent(crop)}`);
+export const selectCrop = (cropNames) => api.post('/crop-selection/select-crop', { cropNames: Array.isArray(cropNames) ? cropNames : [cropNames] });
 
 // ─── Disease Identification ───────────────────────────────────────────────────
 export const getDiseases     = (params) => api.get('/diseases', { params });

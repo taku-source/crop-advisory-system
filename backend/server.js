@@ -19,6 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/auth',                    require('./routes/auth'));
 app.use('/api/users',                   require('./routes/users'));
+app.use('/api/crop-selection',          require('./routes/cropSelection'));
+app.use('/api/crop-progress',           require('./routes/cropProgress'));
 app.use('/api/advisories',              require('./routes/advisories'));
 app.use('/api/advisories-contextual',   require('./routes/advisoriesContextual'));
 app.use('/api/diseases',                require('./routes/diseases'));

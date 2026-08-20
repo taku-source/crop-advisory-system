@@ -56,14 +56,14 @@ export const RegisterScreen = ({ navigation }) => {
   const { register } = useAuth();
   const [form, setForm] = useState({
     fullName: '', email: '', phone: '', password: '',
-    district: '', ward: '', farmName: '', farmSize: '',
+    district: '', farmName: '', farmSize: '',
   });
   const [loading, setLoading] = useState(false);
 
   const update = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
 
   const handleRegister = async () => {
-    const required = ['fullName', 'email', 'phone', 'password', 'district', 'ward'];
+    const required = ['fullName', 'email', 'phone', 'password', 'district'];
     if (required.some((k) => !form[k])) return Alert.alert('Error', 'Please fill all required fields');
     setLoading(true);
     try {
@@ -81,7 +81,6 @@ export const RegisterScreen = ({ navigation }) => {
     { key: 'phone', label: 'Phone Number *', keyboard: 'phone-pad' },
     { key: 'password', label: 'Password *', secure: true },
     { key: 'district', label: 'District *' },
-    { key: 'ward', label: 'Ward *' },
     { key: 'farmName', label: 'Farm Name' },
     { key: 'farmSize', label: 'Farm Size (e.g. 2 ha)' },
   ];

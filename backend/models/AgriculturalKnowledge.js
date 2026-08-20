@@ -65,6 +65,13 @@ const agriculturalKnowledgeSchema = new mongoose.Schema(
     // Source and reference
     source:              { type: String, default: '' },  // e.g., "FAO Guidelines", "Zimbabwe Agritex"
     reference:          { type: String, default: '' },
+    sourceIds:          [{ type: String }],
+    datasetName:        { type: String, default: '' },
+    datasetVersion:     { type: String, default: '' },
+    plantingDetails:    { type: mongoose.Schema.Types.Mixed, default: null },
+    weedManagement:     { type: mongoose.Schema.Types.Mixed, default: null },
+    advisoryRules:      [{ type: mongoose.Schema.Types.Mixed }],
+    pestKnowledge:       [{ type: mongoose.Schema.Types.Mixed }],
     
     isActive:            { type: Boolean, default: true }
   },

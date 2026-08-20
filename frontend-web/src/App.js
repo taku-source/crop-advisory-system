@@ -13,6 +13,7 @@ import FarmerDiseasePage from './pages/FarmerDiseasePage';
 import FarmerRecordsPage from './pages/FarmerRecordsPage';
 import FarmerNotificationsPage from './pages/FarmerNotificationsPage';
 import FarmerKnowledgePage from './pages/FarmerKnowledgePage';
+import CropSelectionPage from './pages/CropSelectionPage';
 import { ReportsPage, KnowledgePage } from './pages/ReportsKnowledgePages';
 
 const featureCards = [
@@ -599,7 +600,7 @@ function FarmerLayout() {
 }
 
 function AppInner() {
-  const { user, loading } = useAuth();
+  const { user, loading, updateUser } = useAuth();
   const [mode, setMode] = useState('home');
 
   if (loading) {
@@ -617,6 +618,10 @@ function AppInner() {
     if (mode === 'register') return <RegisterPage onSwitchMode={setMode} onHome={() => setMode('home')} />;
     if (mode === 'login') return <LoginPage onSwitchMode={setMode} onHome={() => setMode('home')} />;
     return <PublicHomepage onSignIn={() => setMode('login')} onRegister={() => setMode('register')} onHome={() => setMode('home')} />;
+  }
+
+  if (user.role !== 'admin' && !user.hasSelectedCrop && !user.primaryCrop) {
+    return <CropSelectionPage onSelected={updateUser} />;
   }
 
   return user.role === 'admin' ? <AdminLayout /> : <FarmerLayout />;

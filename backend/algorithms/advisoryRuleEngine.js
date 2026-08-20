@@ -166,8 +166,17 @@ class AdvisoryRuleEngine {
    * @returns {Array}
    */
   getStageActivities(cropKnowledge, stageName) {
+    const stageAliases = {
+      seedling: ['seedling', 'germination', 'emergence-2-weeks'],
+      germination: ['seedling', 'germination', 'emergence-2-weeks'],
+      vegetative: ['vegetative', '3-6-weeks', 'vegetative-tasseling'],
+      flowering: ['flowering', 'reproductive', 'vegetative-tasseling', 'tasseling-grain-fill'],
+      grain_fill: ['grain_fill', 'grain fill', 'tasseling-grain-fill', 'maturity'],
+      mature: ['mature', 'maturity', 'harvest', 'harvest-storage']
+    };
+    const acceptedNames = stageAliases[stageName.toLowerCase()] || [stageName.toLowerCase()];
     const stage = (cropKnowledge.growthStages || []).find(
-      s => s.stageName.toLowerCase() === stageName.toLowerCase()
+      s => acceptedNames.includes(s.stageName.toLowerCase())
     );
     return stage ? stage.activities : [];
   }

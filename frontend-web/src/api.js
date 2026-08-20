@@ -41,8 +41,16 @@ export const createAdvisory   = (d)    => api.post('/advisories', d);
 export const updateAdvisory   = (id,d) => api.put(`/advisories/${id}`, d);
 export const deleteAdvisory   = (id)   => api.delete(`/advisories/${id}`);
 export const getContextualAdvisories = () => api.get('/advisories-contextual/farmer');
+export const getSeasonalPlan = () => api.get('/advisories-contextual/seasonal-plan');
+export const updateCropProgress = (stageId, data) => api.put(`/crop-progress/${encodeURIComponent(stageId)}`, data);
 export const getFarmerWeather = (farmerId) => api.get(`/advisories-contextual/weather/${farmerId}`);
 export const getFarmerClimate = (farmerId) => api.get(`/advisories-contextual/climate/${farmerId}`);
+
+// First-login crop selection
+export const getAvailableCrops = () => api.get('/crop-selection/available-crops');
+export const getCropInfo = (crop) => api.get(`/crop-selection/crop-info/${encodeURIComponent(crop)}`);
+export const selectCrop = (cropNames) => api.post('/crop-selection/select-crop', { cropNames: Array.isArray(cropNames) ? cropNames : [cropNames] });
+export const getCropSelectionStatus = () => api.get('/crop-selection/check-status');
 
 // ── Diseases ──────────────────────────────────────────────────────────────────
 export const getDiseases    = (p)    => api.get('/diseases', { params: p });

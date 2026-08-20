@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000/api';
 
 /**
  * Get contextual advisories for logged-in farmer
@@ -18,6 +18,28 @@ export const getContextualAdvisories = async (token) => {
     console.error('Error fetching contextual advisories:', error);
     throw error;
   }
+};
+
+export const getSeasonalPlan = async (token) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/advisories-contextual/seasonal-plan`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching seasonal plan:', error);
+    throw error;
+  }
+};
+
+export const updateCropProgress = async (stageId, data, token) => {
+  const response = await axios.put(
+    `${API_BASE_URL}/crop-progress/${encodeURIComponent(stageId)}`,
+    data,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
 };
 
 /**
