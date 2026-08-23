@@ -22,7 +22,7 @@ export default function FarmerDiseasePage() {
         const res = await getDiseases({ crop: selectedCrop });
         setDiseases(res.data.diseases || []);
         const symptomResponse = await getCropSymptoms(selectedCrop);
-        setAvailableSymptoms(symptomResponse.data || []);
+        setAvailableSymptoms(symptomResponse.data?.data || []);
       } catch {
         toast.error('Failed to load diseases');
         setAvailableSymptoms([]);
