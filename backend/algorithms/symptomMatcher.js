@@ -188,6 +188,7 @@ class SymptomMatcher {
 
       return {
         id: disease._id,
+        _id: disease._id,
         diseaseName: disease.diseaseName,
         crop: disease.crop,
         
@@ -195,6 +196,8 @@ class SymptomMatcher {
         matchScore: match.score,
         matchPercentage: match.matchPercentage,
         confidence: this.getConfidenceLevel(match.score),
+        matchedSymptomCount: match.matchedSymptoms.length,
+        totalSymptomCount: disease.symptoms.length,
         
         // Matched symptoms
         matchedSymptoms: match.matchedSymptoms.map(s => ({
@@ -225,7 +228,8 @@ class SymptomMatcher {
         favourableConditions: disease.favourableConditions || [],
         yieldLoss: disease.yield_loss,
         imageUrl: disease.imageUrl,
-        source: disease.source || 'Disease Knowledge Base'
+        source: disease.source || 'Disease Knowledge Base',
+        reference: disease.reference || ''
       };
     });
   }

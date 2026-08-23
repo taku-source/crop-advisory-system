@@ -307,32 +307,8 @@ function PublicHomepage({ onSignIn, onRegister, onHome }) {
               </div>
               <p style={{ color: '#9fbfa8', maxWidth: 460, margin: 0, lineHeight: 1.85 }}>9 diseases across Maize, Tomato, and Beans — matched by symptom, not guesswork. The disease library is built to help your team identify issues fast and act with confidence.</p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 18 }}>
-              {[
-                { crop: 'Maize', title: 'Maize Streak Virus', body: 'Transmitted by leafhoppers. Causes yellow streaking and severe stunting. No chemical cure — early detection is critical.', tags: ['Yellow leaf streaks', 'Stunted growth', 'Small plant size'], color: '#4ade80' },
-                { crop: 'Tomato', title: 'Late Blight', body: 'Caused by Phytophthora infestans. Can destroy an entire crop within days in cool, wet conditions. Act immediately.', tags: ['Water-soaked spots', 'White mould', 'Rapid plant death'], color: '#f43f5e' },
-                { crop: 'Beans', title: 'Angular Leaf Spot', body: 'Fungal disease common in wet seasons. Angular brown spots limited by leaf veins. Managed with crop rotation and copper fungicides.', tags: ['Angular brown spots', 'Bounded by veins', 'Defoliation'], color: '#f59e0b' },
-                { crop: 'Maize', title: 'Grey Leaf Spot', body: 'Fungal disease spread by wind and rain. Rectangular grey lesions reduce photosynthesis and cause early leaf death.', tags: ['Grey rectangular spots', 'Yellow halo', 'Leaf blight'], color: '#4ade80' },
-                { crop: 'Tomato', title: 'Bacterial Wilt', body: 'Soil-borne bacterium that enters through roots. Whole plant wilts suddenly while still green. No chemical treatment.', tags: ['Sudden wilting', 'Brown stem inside', 'Slimy ooze'], color: '#f43f5e' },
-                { crop: 'Beans', title: 'Bean Rust', body: 'Caused by Uromyces appendiculatus. Reddish-brown pustules on leaf undersides lead to premature leaf drop and yield loss.', tags: ['Rust pustules', 'Yellow leaves', 'Leaf drop'], color: '#f59e0b' },
-              ].map((item) => (
-                <div key={item.title} className="feature-card" style={{ background: '#0f231a', borderRadius: 24, padding: 26, border: '1px solid rgba(255,255,255,0.04)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#9ef0b3', letterSpacing: 1.2, textTransform: 'uppercase' }}>{item.crop}</div>
-                    <div style={{ width: 16, height: 16, borderRadius: 999, background: item.color + '22' }} />
-                  </div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: '#e6f6ea', marginBottom: 12 }}>{item.title}</div>
-                  <div style={{ color: '#9fbfa8', fontSize: 14, lineHeight: 1.8, marginBottom: 18 }}>{item.body}</div>
-                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
-                    {item.tags.map((tag) => (
-                      <div key={tag} style={{ background: '#112d1d', color: '#9ef0b3', borderRadius: 999, padding: '7px 12px', fontSize: 11 }}>{tag}</div>
-                    ))}
-                  </div>
-                  <div style={{ height: 4, width: '100%', borderRadius: 999, background: '#122916' }}>
-                    <div style={{ width: item.crop === 'Maize' ? '76%' : item.crop === 'Tomato' ? '68%' : '64%', height: '100%', borderRadius: 999, background: item.color }} />
-                  </div>
-                </div>
-              ))}
+            <div style={{ background: '#0f231a', borderRadius: 24, padding: 26, border: '1px solid rgba(255,255,255,0.04)', color: '#9fbfa8', lineHeight: 1.8 }}>
+              Disease information is available after login from the verified Region III disease knowledge base. Results are matched against farmer-selected symptoms and include confidence, management, prevention, and source references.
             </div>
           </div>
         </section>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  Alert, ScrollView, ActivityIndicator,
+  Alert, ScrollView, ActivityIndicator, useEffect,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import * as Location from 'expo-location';
+import { getAvailableSoils } from '../api/farmerApi';
 
 const GREEN = '#2e7d32';
 
@@ -12,7 +13,6 @@ const DISTRICTS = [
   'Kadoma', 'Chegutu', 'Kwekwe', 'Muronzi', 'Chinhoyi', 'Zvimba', 'Sanyati',
 ];
 
-const SOILS = ['Sandy', 'Sandy loam', 'Loam', 'Clay loam', 'Clay'];
 
 const FIELDS = [
   { key: 'fullName',  label: 'Full Name *',           required: true },
@@ -29,6 +29,9 @@ export default function RegisterScreen({ navigation }) {
   const { register }    = useAuth();
   const [form, setForm] = useState({ fullName:'', email:'', phone:'', password:'', district:'', ward:'', farmName:'', farmSize:'', soilType:'', location:{ latitude:null, longitude:null } });
   const [loading, setLoading] = useState(false);
+  const [soils, setSoils] = useState([]);
+
+  useEffect(() => { getAvailableSoils().then((data) => setSoils((data.soils || []).map((soil) => soil.soilType))).catch(() => Alert.alert('Soil data unavailable', 'Please try again when the verified knowledge base is available.')); }, []);
 
   const upd = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -85,7 +88,7 @@ export default function RegisterScreen({ navigation }) {
       ))}
 
       <Text style={s.label}>Soil Type *</Text>
-      <View style={s.optionRow}>{SOILS.map((soil) => <TouchableOpacity key={soil} onPress={() => upd('soilType')(soil)} style={[s.option, form.soilType === soil && s.optionActive]}><Text style={s.optionText}>{soil}</Text></TouchableOpacity>)}</View>
+      <View style={s.optionRow}>{soils.map((soil) => <TouchableOpacity key={soil} onPress={() => upd('soilType')(soil)} style={[s.option, form.soilType === soil && s.optionActive]}><Text style={s.optionText}>{soil}</Text></TouchableOpacity>)}</View>
 
       <TouchableOpacity style={s.locationButton} onPress={captureLocation}>
         <Text style={s.locationText}>{form.location.latitude ? `Location captured (${form.location.latitude.toFixed(3)}, ${form.location.longitude.toFixed(3)})` : 'Capture GPS location'}</Text>

@@ -19,7 +19,6 @@ export const getContextualAdvisories = async (token) => {
     throw error;
   }
 };
-
 export const getSeasonalPlan = async (token) => {
   try {
     const response = await axios.get(
@@ -77,6 +76,11 @@ export const matchSymptoms = async (symptoms, crop, token) => {
     console.error('Error matching symptoms:', error);
     throw error;
   }
+};
+
+export const getAvailableSoils = async () => {
+  const response = await axios.get(`${API_BASE_URL}/crop-selection/available-soils`);
+  return response.data;
 };
 
 /**
@@ -169,23 +173,3 @@ export const getSoilKnowledge = async (soilType, token) => {
   }
 };
 
-export const soilTypes = [
-  'Sandy loam',
-  'Clay loam',
-  'Red clay',
-  'Loamy sand',
-  'Silt loam',
-  'Clay',
-  'Other'
-];
-
-export const crops = [
-  'Maize',
-  'Groundnuts',
-  'Sorghum',
-  'Millet',
-  'Cotton',
-  'Tobacco',
-  'Beans',
-  'Other'
-];

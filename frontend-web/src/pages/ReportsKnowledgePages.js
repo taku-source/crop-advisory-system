@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getAdminReport } from '../api';
-import { getKnowledge, createKnowledge, updateKnowledge, deleteKnowledge } from '../api';
-import { StatCard, PageHeader, Table, Chip, Button, Modal, Field, Input, Textarea, Select, ConfirmDialog, toast } from '../components/UI';
+import { getAdminReport, getAgriculturalKnowledge, getSoilKnowledge, getDiseaseKnowledge } from '../api';
+import { StatCard, PageHeader, Table, Chip, Button, Select, toast } from '../components/UI';
 
 // ─── ReportsPage ──────────────────────────────────────────────────────────────
 export function ReportsPage() {
@@ -77,117 +76,76 @@ export function ReportsPage() {
 }
 
 // ─── KnowledgePage ────────────────────────────────────────────────────────────
-const CATS = ['Farming Guide', 'Best Practices', 'Disease Prevention', 'Fertilizer', 'Pest Management'];
-const CROPS = ['General', 'Maize', 'Tomato', 'Beans'];
-const EMPTY_FORM = { title: '', category: 'Farming Guide', crop: 'General', content: '', tags: '' };
-
 export function KnowledgePage() {
-  const [articles, setArticles] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [records, setRecords] = useState({ agricultural: [], soil: [], diseases: [] });
+  const [loading, setLoading] = useState(true);
   const [search, setSearch]     = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing]   = useState(null);
-  const [form, setForm]         = useState(EMPTY_FORM);
-  const [saving, setSaving]     = useState(false);
-  const [confirm, setConfirm]   = useState(null);
+  const [cropFilter, setCropFilter] = useState('All');
+  const [kind, setKind] = useState('agricultural');
 
-  const fetch = useCallback(async () => {
-    try { const r = await getKnowledge({ search }); setArticles(r.data.articles); }
+  const fetchKnowledge = useCallback(async () => {
+    try {
+      const [agricultural, soil, diseases] = await Promise.all([
+        getAgriculturalKnowledge({ region: 'III' }),
+        getSoilKnowledge({ region: 'III' }),
+        getDiseaseKnowledge({ region: 'III' })
+      ]);
+      setRecords({
+        agricultural: agricultural.data.data || [],
+        soil: soil.data.data || [],
+        diseases: diseases.data.data || []
+      });
+    }
     catch { toast.error('Failed to load knowledge base'); }
     finally { setLoading(false); }
-  }, [search]);
+  }, []);
 
-  useEffect(() => { const t = setTimeout(fetch, 300); return () => clearTimeout(t); }, [fetch]);
+  useEffect(() => { fetchKnowledge(); }, [fetchKnowledge]);
 
-  const openAdd  = () => { setEditing(null); setForm(EMPTY_FORM); setModalOpen(true); };
-  const openEdit = (a) => { setEditing(a); setForm({ title: a.title, category: a.category, crop: a.crop, content: a.content, tags: (a.tags || []).join(', ') }); setModalOpen(true); };
-  const upd = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const crops = [...new Set(records.agricultural.map((item) => item.cropName).concat(records.diseases.map((item) => item.crop)).filter(Boolean))].sort();
+  const currentRecords = records[kind].filter((item) => {
+    const text = JSON.stringify(item).toLowerCase();
+    return (!search || text.includes(search.toLowerCase())) &&
+      (cropFilter === 'All' || item.cropName === cropFilter || item.crop === cropFilter || item.suitableCrops?.includes(cropFilter));
+  });
 
-  const handleSave = async () => {
-    if (!form.title || !form.content) return toast.error('Title and content are required');
-    const payload = { ...form, tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean) };
-    setSaving(true);
-    try {
-      if (editing) { await updateKnowledge(editing._id, payload); toast.success('Article updated'); }
-      else { await createKnowledge(payload); toast.success('Article created'); }
-      setModalOpen(false);
-      fetch();
-    } catch (err) { toast.error(err.response?.data?.message || 'Save failed'); }
-    finally { setSaving(false); }
-  };
-
-  const handleDelete = async () => {
-    try { await deleteKnowledge(confirm._id); toast.success('Article deleted'); fetch(); }
-    catch { toast.error('Delete failed'); }
-    finally { setConfirm(null); }
-  };
-
-  const columns = [
-    { label: 'Title', render: (a) => <strong style={{ fontSize: 13 }}>{a.title}</strong> },
-    { label: 'Category', render: (a) => <Chip color="blue">{a.category}</Chip> },
-    { label: 'Crop', render: (a) => a.crop !== 'General' ? <Chip color="green">{a.crop}</Chip> : <span style={{ color: '#9fbfa8', fontSize: 12 }}>General</span> },
-    { label: 'Tags', render: (a) => <span style={{ fontSize: 11, color: '#9fbfa8' }}>{(a.tags || []).join(', ') || '—'}</span> },
-    { label: 'Created', render: (a) => <span style={{ fontSize: 12, color: '#9fbfa8' }}>{new Date(a.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span> },
-    { label: 'Actions', render: (a) => (
-      <div style={{ display: 'flex', gap: 6 }}>
-        <Button size="sm" variant="secondary" onClick={() => openEdit(a)}>Edit</Button>
-        <Button size="sm" variant="danger" onClick={() => setConfirm(a)}>Delete</Button>
-      </div>
-    )},
-  ];
+  const columns = kind === 'agricultural'
+    ? [
+      { label: 'Crop', render: (item) => <Chip color="green">{item.cropName}</Chip> },
+      { label: 'Planting period', render: (item) => <span>{item.plantingPeriod || 'Not specified'}</span> },
+      { label: 'Stages', render: (item) => <span>{item.growthStages?.length || 0}</span> },
+      { label: 'Source', render: (item) => <span style={{ color: '#9fbfa8', fontSize: 12 }}>{item.source || '—'}</span> },
+    ]
+    : kind === 'soil'
+      ? [
+        { label: 'Soil type', render: (item) => <Chip color="green">{item.soilType}</Chip> },
+        { label: 'Suitable crops', render: (item) => <span>{(item.suitableCrops || []).join(', ') || '—'}</span> },
+        { label: 'Fertility', render: (item) => <span>{item.fertility?.rating || '—'}</span> },
+        { label: 'Source', render: (item) => <span style={{ color: '#9fbfa8', fontSize: 12 }}>{item.source || '—'}</span> },
+      ]
+      : [
+        { label: 'Disease', render: (item) => <strong>{item.diseaseName}</strong> },
+        { label: 'Crop', render: (item) => <Chip color="green">{item.crop}</Chip> },
+        { label: 'Weighted symptoms', render: (item) => <span>{item.symptoms?.length || 0}</span> },
+        { label: 'Source', render: (item) => <span style={{ color: '#9fbfa8', fontSize: 12 }}>{item.source || '—'}</span> },
+      ];
 
   return (
     <div>
       <PageHeader
-        title={`Knowledge Base (${articles.length})`}
+        title={`Verified Knowledge Base (${currentRecords.length})`}
         action={
           <div style={{ display: 'flex', gap: 10 }}>
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search articles..." style={{ padding: '9px 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, fontSize: 13, outline: 'none', width: 260, background: '#122916', color: '#e6f6ea' }} />
-            <Button onClick={openAdd}>+ Add Article</Button>
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search verified records..." style={{ padding: '9px 14px', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, fontSize: 13, outline: 'none', width: 260, background: '#122916', color: '#e6f6ea' }} />
+            <Select value={kind} onChange={(e) => setKind(e.target.value)}><option value="agricultural">Agricultural</option><option value="soil">Soil</option><option value="diseases">Diseases</option></Select>
+            <Select value={cropFilter} onChange={(e) => setCropFilter(e.target.value)}><option value="All">All crops</option>{crops.map((crop) => <option key={crop} value={crop}>{crop}</option>)}</Select>
+            <Button onClick={fetchKnowledge}>Refresh</Button>
           </div>
         }
       />
 
       {loading ? <div style={{ textAlign: 'center', padding: 40, color: '#9fbfa8' }}>Loading...</div>
-        : <Table columns={columns} rows={articles} empty="No articles yet" />}
-
-      {modalOpen && (
-        <Modal title={editing ? 'Edit Article' : '📚 New Article'} onClose={() => setModalOpen(false)} width={620}>
-          <Field label="Title *">
-            <Input value={form.title} onChange={upd('title')} placeholder="Article title..." />
-          </Field>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 14px' }}>
-            <Field label="Category">
-              <Select value={form.category} onChange={upd('category')}>
-                {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
-              </Select>
-            </Field>
-            <Field label="Crop">
-              <Select value={form.crop} onChange={upd('crop')}>
-                {CROPS.map((c) => <option key={c} value={c}>{c}</option>)}
-              </Select>
-            </Field>
-          </div>
-          <Field label="Content *">
-            <Textarea value={form.content} onChange={upd('content')} rows={8} placeholder="Full article content... Markdown supported." />
-          </Field>
-          <Field label="Tags (comma-separated)">
-            <Input value={form.tags} onChange={upd('tags')} placeholder="maize, fertiliser, planting" />
-          </Field>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : editing ? 'Update Article' : 'Publish Article'}</Button>
-          </div>
-        </Modal>
-      )}
-
-      {confirm && (
-        <ConfirmDialog
-          message={`Delete "${confirm.title}"? This cannot be undone.`}
-          onConfirm={handleDelete}
-          onCancel={() => setConfirm(null)}
-        />
-      )}
+        : <Table columns={columns} rows={currentRecords} empty="No verified records found" />}
     </div>
   );
 }

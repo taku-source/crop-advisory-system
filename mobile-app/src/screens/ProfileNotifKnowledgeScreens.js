@@ -5,9 +5,8 @@ import {
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useFarmProfile } from '../context/FarmProfileContext';
-import { updateProfile, changePassword, getNotifications, getKnowledge, getFarmerReport } from '../api';
+import { updateProfile, changePassword, getNotifications, getAgriculturalKnowledge, getSoilKnowledge, getDiseaseKnowledge, getFarmerReport, getAvailableCrops, getAvailableSoils } from '../api';
 import { getCurrentLocation, isWithinZimbabwe, formatCoordinates } from '../utils/locationUtils';
-import { crops, soilTypes } from '../api/farmerApi';
 
 const GREEN = '#2e7d32';
 const LIGHT_GREEN = '#e8f5e9';
@@ -29,6 +28,15 @@ export function ProfileScreen() {
   const [saving, setSaving] = useState(false);
   const [locating, setLocating] = useState(false);
   const [report, setReport] = useState(null);
+  const [crops, setCrops] = useState([]);
+  const [soilTypes, setSoilTypes] = useState([]);
+
+  useEffect(() => {
+    Promise.all([getAvailableCrops(), getAvailableSoils()]).then(([cropResponse, soilResponse]) => {
+      setCrops((cropResponse.data?.crops || []).map((item) => item.name));
+      setSoilTypes((soilResponse.data?.soils || []).map((item) => item.soilType));
+    }).catch(() => Alert.alert('Knowledge unavailable', 'Verified crop and soil options could not be loaded.'));
+  }, []);
 
   // Sync farm profile form when profile loads
   useEffect(() => {
@@ -370,20 +378,21 @@ export function KnowledgeScreen() {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
-  const [catFilter, setCatFilter] = useState('All');
   const [expanded, setExpanded]  = useState(null);
 
-  const CATS = ['All', 'Farming Guide', 'Best Practices', 'Disease Prevention', 'Fertilizer', 'Pest Management'];
-  const CAT_ICONS_KB = { 'Farming Guide': '📖', 'Best Practices': '⭐', 'Disease Prevention': '🛡️', 'Fertilizer': '💊', 'Pest Management': '🐛' };
+  const CAT_ICONS_KB = { 'Agricultural guidance': '📖', 'Soil guidance': '🌱', 'Disease guidance': '🛡️' };
 
   useEffect(() => {
-    getKnowledge().then((r) => setArticles(r.data.articles)).catch(() => {}).finally(() => setLoading(false));
+    Promise.all([getAgriculturalKnowledge({ region: 'III' }), getSoilKnowledge({ region: 'III' }), getDiseaseKnowledge({ region: 'III' })]).then(([agricultural, soil, diseases]) => setArticles([
+      ...(agricultural.data.data || []).map((item) => ({ ...item, title: item.cropName, category: 'Agricultural guidance', crop: item.cropName, content: item.plantingPeriod || item.source })),
+      ...(soil.data.data || []).map((item) => ({ ...item, title: item.soilType, category: 'Soil guidance', crop: (item.suitableCrops || []).join(', '), content: item.characteristics?.texture || item.source })),
+      ...(diseases.data.data || []).map((item) => ({ ...item, title: item.diseaseName, category: 'Disease guidance', crop: item.crop, content: (item.symptoms || []).map((symptom) => symptom.symptom).join(', ') }))
+    ])).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const filtered = articles.filter((a) => {
-    const matchCat = catFilter === 'All' || a.category === catFilter;
     const matchSearch = !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.content.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
+    return matchSearch;
   });
 
   if (loading) return <View style={s.center}><ActivityIndicator size="large" color={GREEN} /></View>;
@@ -393,14 +402,6 @@ export function KnowledgeScreen() {
       <View style={s.toolbar}>
         <TextInput style={s.searchInput} placeholder="Search knowledge base..." value={search} onChangeText={setSearch} />
       </View>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.catFilter} contentContainerStyle={{ paddingHorizontal: 12 }}>
-        {CATS.map((c) => (
-          <TouchableOpacity key={c} style={[s.catChip, catFilter === c && s.catChipActive]} onPress={() => setCatFilter(c)}>
-            <Text style={[s.catChipText, catFilter === c && { color: '#fff' }]}>{c === 'All' ? 'All' : `${CAT_ICONS_KB[c]} ${c}`}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
 
       <ScrollView>
         {filtered.map((a) => (

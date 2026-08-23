@@ -4,6 +4,13 @@
 
 The Crop Advisory System is designed to provide farmers in Zimbabwe's Agro-Ecological Region III with contextual, evidence-based agricultural guidance. The system integrates multiple authoritative data sources and uses rule-based algorithms to deliver location-specific, soil-aware, and weather-informed advisory.
 
+The source files are kept in `backend/scripts`:
+
+- `agronomic_guide_seven_crops_zimbabwe.pdf` is the supporting agricultural reference document. It is not read during a farmer request.
+- `verified-region-iii-dataset (6).json` is the structured, machine-readable knowledge base. The importer validates and maps it into MongoDB collections used by the algorithms.
+
+Run `npm run import:region3` from `backend` to import the verified JSON automatically. The PDF remains available for source verification and academic traceability.
+
 ## Data Sources
 
 ### 1. Agricultural Advisory & Crop Management Data

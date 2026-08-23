@@ -27,6 +27,8 @@ export const getSeasonalPlan = () => api.get('/advisories-contextual/seasonal-pl
 
 // First-login crop selection
 export const getAvailableCrops = () => api.get('/crop-selection/available-crops');
+export const getAvailableSoils = () => api.get('/crop-selection/available-soils');
+export const getCropSymptoms = (crop) => api.get(`/diseases-symptom-match/symptoms/${encodeURIComponent(crop)}`);
 export const getCropInfo = (crop) => api.get(`/crop-selection/crop-info/${encodeURIComponent(crop)}`);
 export const selectCrop = (cropNames) => api.post('/crop-selection/select-crop', { cropNames: Array.isArray(cropNames) ? cropNames : [cropNames] });
 
@@ -47,8 +49,9 @@ export const deleteRecord   = (id)          => api.delete(`/records/${id}`);
 export const getNotifications = () => api.get('/notifications');
 
 // ─── Knowledge Base ───────────────────────────────────────────────────────────
-export const getKnowledge  = (params) => api.get('/knowledge', { params });
-export const getArticle    = (id)     => api.get(`/knowledge/${id}`);
+export const getAgriculturalKnowledge = (params) => api.get('/knowledge/agricultural', { params });
+export const getSoilKnowledge = (params) => api.get('/knowledge/soil', { params });
+export const getDiseaseKnowledge = (params) => api.get('/knowledge/diseases', { params });
 
 // ─── Reports ──────────────────────────────────────────────────────────────────
 export const getFarmerReport = () => api.get('/reports/farmer');

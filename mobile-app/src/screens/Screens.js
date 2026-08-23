@@ -177,19 +177,18 @@ export const DashboardScreen = ({ navigation }) => {
 
 // ─── DiseaseIdentifierScreen.js ───────────────────────────────────────────────
 export const DiseaseIdentifierScreen = () => {
-  const { identifyDisease } = require('../api');
+  const { identifyDisease, getAvailableCrops, getCropSymptoms } = require('../api');
   const [step, setStep] = useState(1);
   const [crop, setCrop] = useState('');
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const CROPS = ['Maize', 'Tomato', 'Beans'];
-  const SYMPTOMS_BY_CROP = {
-    Maize: ['Yellow leaves', 'Brown spots', 'Leaf streaks', 'Stunted growth', 'White powder', 'Rust pustules', 'Wilting', 'Leaf blight'],
-    Tomato: ['Water-soaked spots', 'Brown leaf spots', 'Wilting', 'White mould', 'Stem lesions', 'Fruit rot', 'Yellow leaves'],
-    Beans: ['Angular spots', 'Yellow leaves', 'Rust pustules', 'Leaf drop', 'Brown lesions'],
-  };
+  const [crops, setCrops] = useState([]);
+  const [availableSymptoms, setAvailableSymptoms] = useState([]);
+
+  useEffect(() => { getAvailableCrops().then((response) => setCrops((response.data?.crops || []).map((item) => item.name))).catch(() => Alert.alert('Error', 'Could not load verified crops.')); }, []);
+  useEffect(() => { if (crop) getCropSymptoms(crop).then((response) => setAvailableSymptoms(response.data || [])).catch(() => setAvailableSymptoms([])); }, [crop]);
 
   const toggleSymptom = (s) => {
     setSelectedSymptoms((prev) =>
@@ -221,7 +220,7 @@ export const DiseaseIdentifierScreen = () => {
       {step === 1 && (
         <View>
           <Text style={s.stepLabel}>Step 1: Select your crop</Text>
-          {CROPS.map((c) => (
+          {crops.map((c) => (
             <TouchableOpacity key={c} style={[s.optionBtn, crop === c && s.optionSelected]}
               onPress={() => { setCrop(c); setStep(2); }}>
               <Text style={[s.optionText, crop === c && s.optionTextSelected]}>{c}</Text>
@@ -234,7 +233,7 @@ export const DiseaseIdentifierScreen = () => {
       {step === 2 && (
         <View>
           <Text style={s.stepLabel}>Step 2: Select symptoms you observe on your {crop}</Text>
-          {(SYMPTOMS_BY_CROP[crop] || []).map((sym) => (
+          {availableSymptoms.map((sym) => (
             <TouchableOpacity key={sym}
               style={[s.optionBtn, selectedSymptoms.includes(sym) && s.optionSelected]}
               onPress={() => toggleSymptom(sym)}>

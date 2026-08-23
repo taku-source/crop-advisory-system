@@ -1,8 +1,7 @@
 const AgriculturalKnowledge = require('../models/AgriculturalKnowledge');
 const SoilData = require('../models/SoilData');
-const DiseaseKnowledge = require('../models/Disease');
+const DiseaseKnowledge = require('../models/DiseaseKnowledge');
 const CropProgress = require('../models/CropProgress');
-const { getSupportedCropNames } = require('../config/supportedCrops');
 
 /**
  * Generate a seasonal crop plan for a farmer
@@ -34,7 +33,7 @@ class SeasonalPlanGenerator {
     try {
       // Get agricultural knowledge for the crop
       const cropKnowledge = await AgriculturalKnowledge.findOne({
-        $or: getSupportedCropNames(farmer.primaryCrop).map((name) => ({ cropName: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') })),
+        cropName: new RegExp(`^${String(farmer.primaryCrop).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
         agroEcologicalRegion: 'III',
         isActive: true
       });
@@ -53,8 +52,8 @@ class SeasonalPlanGenerator {
       }
 
       // Determine current stage
-      const currentStage = this.determineCropStage(farmer.plantingDate);
-      const daysToPlanting = this.daysUntilOptimalPlanting(farmer.primaryCrop);
+      const currentStage = this.determineCropStage(farmer.plantingDate, cropKnowledge);
+      const daysToPlanting = this.daysUntilOptimalPlanting(cropKnowledge);
 
       // Build seasonal timeline
       const seasonalTimeline = this.buildSeasonalTimeline(
@@ -89,7 +88,7 @@ class SeasonalPlanGenerator {
       const seasonalPlan = {
         crop: farmer.primaryCrop,
         region: 'Agro-Ecological Region III',
-        season: this.getCurrentSeason(),
+        season: this.getCurrentSeason(cropKnowledge),
         farmerContext: {
           location: farmer.location,
           soilType: farmer.soilType,
@@ -100,7 +99,7 @@ class SeasonalPlanGenerator {
           stage: currentStage,
           plantingDate: farmer.plantingDate,
           daysToOptimalPlanting: daysToPlanting,
-          message: this.getStageMessage(currentStage, daysToPlanting)
+          message: this.getStageMessage(currentStage, daysToPlanting, cropKnowledge)
         },
         currentActions: currentActions,
         seasonalTimeline: seasonalTimeline,
@@ -133,7 +132,7 @@ class SeasonalPlanGenerator {
   /**
    * Determine current crop stage
    */
-  determineCropStage(plantingDate) {
+  determineCropStage(plantingDate, cropKnowledge) {
     if (!plantingDate) {
       return 'pre-planting';
     }
@@ -143,44 +142,39 @@ class SeasonalPlanGenerator {
     const daysAfterPlanting = Math.floor((today - planted) / (1000 * 60 * 60 * 24));
 
     if (daysAfterPlanting < 0) return 'pre-planting';
-    if (daysAfterPlanting < 14) return 'seedling';
-    if (daysAfterPlanting < 45) return 'vegetative';
-    if (daysAfterPlanting < 75) return 'flowering';
-    if (daysAfterPlanting < 120) return 'grain_fill';
-    return 'mature';
+    const stages = (cropKnowledge?.growthStages || []).filter((stage) => Number.isFinite(stage.daysAfterPlanting));
+    if (!stages.length) {
+      return cropKnowledge?.growthStages?.[0]?.stageName?.toLowerCase() || 'unknown';
+    }
+    const current = stages.find((stage, index) => {
+      const next = stages[index + 1];
+      return daysAfterPlanting >= stage.daysAfterPlanting && (!next || daysAfterPlanting < next.daysAfterPlanting);
+    });
+    return current?.stageName?.toLowerCase() || stages[stages.length - 1].stageName.toLowerCase();
   }
 
   /**
    * Calculate days until optimal planting window
    */
-  daysUntilOptimalPlanting(crop) {
+  daysUntilOptimalPlanting(cropKnowledge) {
+    const startMonth = cropKnowledge?.plantingWindow?.startMonth;
+    if (!startMonth) return null;
     const today = new Date();
-    const month = today.getMonth() + 1;
-
-    // Region III optimal planting: November-December for most crops
-    if (month >= 11 || month <= 1) {
-      return 0; // Within planting window
-    }
-    if (month < 11) {
-      return 31 * (11 - month);
-    }
-    return 0;
+    const currentMonth = today.getMonth() + 1;
+    const monthsUntil = (startMonth - currentMonth + 12) % 12;
+    return monthsUntil * 30;
   }
 
   /**
    * Get current message based on stage
    */
-  getStageMessage(stage, daysToPlanting) {
-    const messages = {
-      'pre-planting': `Planting window approaching. Prepare field and ensure adequate soil moisture. 
-                       Recommended planting period: November-December.`,
-      'seedling': 'Seeds are germinating. Monitor soil moisture and watch for pest damage.',
-      'vegetative': 'Plant is in vegetative growth stage. Focus on weed management and nutrient supply.',
-      'flowering': 'Plant is flowering. Critical stage for disease and pest management.',
-      'grain_fill': 'Grain/fruit is developing. Maintain adequate water and monitor for late-season pests.',
-      'mature': 'Crop is mature. Prepare for harvest.'
-    };
-    return messages[stage] || 'Monitor crop regularly.';
+  getStageMessage(stage, daysToPlanting, cropKnowledge) {
+    if (stage === 'pre-planting') {
+      return `Planting window guidance: ${cropKnowledge?.plantingPeriod || 'see verified crop guidance'}. Prepare the field and confirm effective rainfall and soil moisture.`;
+    }
+    const current = (cropKnowledge?.growthStages || []).find((item) => item.stageName?.toLowerCase() === stage.toLowerCase());
+    const actions = (current?.activities || []).map((item) => item.activityName).filter(Boolean);
+    return actions.length ? `${current.stageName}: ${actions.join('; ')}.` : `${stage}: follow the verified crop stage guidance.`;
   }
 
   /**
@@ -276,9 +270,9 @@ class SeasonalPlanGenerator {
       actions.push({
         priority: 'high',
         activity: 'Weather Monitoring',
-        description: `Current rainfall: ${weatherData.rainfall || 'N/A'}mm. Monitor for drought stress.`,
+        description: `Forecast rainfall for the next 7 days: ${this.getForecastRainfall(weatherData).toFixed(1)}mm. Monitor soil moisture and drought stress.`,
         reason: 'Based on current weather conditions at your location',
-        source: 'NASA POWER Climate API'
+        source: (weatherData.sources || ['NASA POWER', 'Open-Meteo Forecast API']).join(' + ')
       });
     }
 
@@ -306,8 +300,8 @@ class SeasonalPlanGenerator {
         commonDiseases: diseases.map(d => ({
           name: d.diseaseName,
           symptoms: d.symptoms,
-          prevention: d.prevention,
-          treatment: d.treatment,
+          prevention: d.preventiveMeasures,
+          treatment: d.managementMeasures,
           severity: d.severity
         })),
         stageSpecificAlerts: this.getStageSpecificAlerts(currentStage),
@@ -321,29 +315,22 @@ class SeasonalPlanGenerator {
     }
   }
 
+  getForecastRainfall(weatherData) {
+    return (weatherData?.forecast?.data || []).reduce((sum, day) => sum + (day.precipitation?.mm || 0), 0);
+  }
+
   /**
    * Get stage-specific pest/disease alerts
    */
   getStageSpecificAlerts(stage) {
-    const alerts = {
-      'germination': 'Watch for cutworms and seedling damping off.',
-      'vegetative': 'Monitor for aphids, armyworms, and leaf spot diseases.',
-      'flowering': 'Critical stage. Monitor intensively for pests and fungal diseases.',
-      'grain_fill': 'Watch for late-season insect pests and grain rot diseases.',
-      'mature': 'Monitor for storage pests if grain will be stored.'
-    };
-    return alerts[stage] || 'Monitor regularly.';
+    return `Review verified disease and pest guidance for the ${stage} stage and scout the crop regularly.`;
   }
 
   /**
    * Get current season
    */
-  getCurrentSeason() {
-    const month = new Date().getMonth() + 1;
-    if (month >= 11 || month <= 3) {
-      return '2025/26 Main Season';
-    }
-    return 'Off-season';
+  getCurrentSeason(cropKnowledge) {
+    return `Rain-fed seasonal guidance; verified planting period: ${cropKnowledge?.plantingPeriod || 'not specified'}`;
   }
 }
 

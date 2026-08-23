@@ -1,5 +1,6 @@
 const AgriculturalKnowledge = require('../models/AgriculturalKnowledge');
 const SoilData = require('../models/SoilData');
+const Advisory = require('../models/Advisory');
 const nasaPowerService = require('../services/nasaPowerService');
 
 class AdvisoryRuleEngine {
@@ -22,7 +23,7 @@ class AdvisoryRuleEngine {
       }
 
       // Step 2: Determine current crop stage and timing
-      const currentStage = this.determineCropStage(farmer);
+      const currentStage = this.determineCropStage(farmer, cropKnowledge);
 
       // Step 3: Get weather data if farmer has location
       let weatherData = null;
@@ -71,7 +72,7 @@ class AdvisoryRuleEngine {
    * @param {Object} farmer
    * @returns {String} - Current growth stage
    */
-  determineCropStage(farmer) {
+  determineCropStage(farmer, cropKnowledge) {
     if (!farmer.plantingDate) {
       return 'unknown';
     }
@@ -80,12 +81,15 @@ class AdvisoryRuleEngine {
     const today = new Date();
     const daysAfterPlanting = Math.floor((today - plantingDate) / (1000 * 60 * 60 * 24));
 
-    // Return stage name - this should match stages in agricultural knowledge
-    if (daysAfterPlanting < 14) return 'seedling';
-    if (daysAfterPlanting < 45) return 'vegetative';
-    if (daysAfterPlanting < 75) return 'flowering';
-    if (daysAfterPlanting < 120) return 'grain_fill';
-    return 'mature';
+    const stages = (cropKnowledge?.growthStages || []).filter((stage) => Number.isFinite(stage.daysAfterPlanting));
+    if (!stages.length) {
+      return cropKnowledge?.growthStages?.[0]?.stageName?.toLowerCase() || 'unknown';
+    }
+    const current = stages.find((stage, index) => {
+      const next = stages[index + 1];
+      return daysAfterPlanting >= stage.daysAfterPlanting && (!next || daysAfterPlanting < next.daysAfterPlanting);
+    });
+    return current?.stageName?.toLowerCase() || stages[stages.length - 1].stageName.toLowerCase();
   }
 
   /**
@@ -156,7 +160,58 @@ class AdvisoryRuleEngine {
       advisories.push(...pestAdvisories);
     }
 
+    advisories.push(...await this.getConfiguredAdvisories(
+      farmer,
+      currentStage,
+      weatherData
+    ));
+
     return advisories;
+  }
+
+  async getConfiguredAdvisories(farmer, currentStage, weatherData) {
+    const crop = farmer.primaryCrop || farmer.primaryCrops?.[0];
+    const configured = await Advisory.find({
+      crop: { $regex: `^${crop.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
+      region: 'III',
+      isActive: true
+    }).lean();
+    const weatherText = this.getWeatherCondition(weatherData);
+
+    const stageAliases = {
+      'pre-planting': ['pre-planting', 'land preparation', 'planting'],
+      seedling: ['seedling', 'establishment', 'germination'],
+      vegetative: ['vegetative'],
+      flowering: ['flowering'],
+      grain_fill: ['grain / pod formation', 'grain/pod formation', 'grain fill', 'maturity'],
+      mature: ['maturity', 'harvesting', 'harvest']
+    };
+    const acceptedStages = stageAliases[currentStage] || [currentStage];
+
+    return configured.filter((rule) => {
+      const stage = (rule.cropStage || '').toLowerCase();
+      const soil = (rule.soilType || '').toLowerCase();
+      const requestedWeather = (rule.weatherCondition || '').toLowerCase();
+      return (!stage || stage === 'any stage' || acceptedStages.includes(stage)) &&
+        (!soil || soil === 'any soil' || soil.includes((farmer.soilType || '').toLowerCase())) &&
+        (!requestedWeather || requestedWeather === 'any condition' || weatherText.includes(requestedWeather));
+    }).map((rule) => ({
+      crop,
+      activity: rule.activity,
+      description: `${rule.description}${rule.instructions ? ` ${rule.instructions}` : ''}`,
+      timing: rule.recommendedDate ? new Date(rule.recommendedDate).toISOString().split('T')[0] : rule.cropStage || 'As conditions indicate',
+      contextualReason: rule.contextualReason || rule.triggerCondition || 'Matched the administrator-configured contextual rule.',
+      source: rule.source || rule.sourceInformation?.source || 'Administrator-configured advisory rule',
+      reference: rule.reference || rule.sourceInformation?.reference || ''
+    }));
+  }
+
+  getWeatherCondition(weatherData) {
+    const forecast = weatherData?.forecast?.data || [];
+    const rainfall = forecast.reduce((sum, day) => sum + (day.precipitation?.mm || 0), 0);
+    if (rainfall >= 20) return 'rainfall expected adequate soil moisture';
+    if (rainfall <= 5) return 'dry spell expected low rainfall';
+    return 'any condition';
   }
 
   /**

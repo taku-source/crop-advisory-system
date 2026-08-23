@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { getKnowledge } from '../api';
+import { getAgriculturalKnowledge, getSoilKnowledge, getDiseaseKnowledge } from '../api';
 import { PageHeader, SearchBar, Chip, toast } from '../components/UI';
 
-const CROP_OPTIONS = ['All', 'General', 'Maize', 'Tomato', 'Beans'];
-const CATEGORY_OPTIONS = ['All', 'Farming Guide', 'Best Practices', 'Disease Prevention', 'Fertilizer', 'Pest Management'];
-
 export default function FarmerKnowledgePage() {
-  const [articles, setArticles] = useState([]);
+  const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [crop, setCrop] = useState('All');
-  const [category, setCategory] = useState('All');
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await getKnowledge();
-        setArticles(res.data.articles);
+        const [agricultural, soil, diseases] = await Promise.all([
+          getAgriculturalKnowledge({ region: 'III' }),
+          getSoilKnowledge({ region: 'III' }),
+          getDiseaseKnowledge({ region: 'III' })
+        ]);
+        setRecords([
+          ...(agricultural.data.data || []).map((item) => ({ ...item, title: item.cropName, crop: item.cropName, category: 'Agricultural guidance', content: item.plantingPeriod || item.source })),
+          ...(soil.data.data || []).map((item) => ({ ...item, title: item.soilType, category: 'Soil guidance', crop: (item.suitableCrops || []).join(', '), content: item.characteristics?.texture || item.source })),
+          ...(diseases.data.data || []).map((item) => ({ ...item, title: item.diseaseName, category: 'Disease guidance', content: (item.symptoms || []).map((symptom) => symptom.symptom).join(', ') }))
+        ]);
       } catch {
         toast.error('Failed to load knowledge articles');
       } finally {
@@ -26,12 +30,12 @@ export default function FarmerKnowledgePage() {
     fetch();
   }, []);
 
-  const filtered = articles.filter((article) => {
+  const filtered = records.filter((article) => {
     const matchesSearch = !search || [article.title, article.content, article.category, article.crop].some((value) => value?.toLowerCase().includes(search.toLowerCase()));
     const matchesCrop = crop === 'All' || article.crop === crop;
-    const matchesCategory = category === 'All' || article.category === category;
-    return matchesSearch && matchesCrop && matchesCategory;
+    return matchesSearch && matchesCrop;
   });
+  const cropOptions = ['All', ...new Set(records.flatMap((article) => article.cropName ? [article.cropName] : article.suitableCrops || []))];
 
   return (
     <div>
@@ -39,11 +43,9 @@ export default function FarmerKnowledgePage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px 160px', gap: 16, alignItems: 'center', marginBottom: 20 }}>
         <SearchBar value={search} onChange={setSearch} placeholder="Search articles..." />
         <select value={crop} onChange={(e) => setCrop(e.target.value)} style={{ padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)', background: '#122916', color: '#e6f6ea' }}>
-          {CROP_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+          {cropOptions.map((option) => <option key={option} value={option}>{option}</option>)}
         </select>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)', background: '#122916', color: '#e6f6ea' }}>
-          {CATEGORY_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
-        </select>
+        <div style={{ color: '#9fbfa8', fontSize: 12 }}>Region III verified records</div>
       </div>
 
       {loading ? <div style={{ color: '#9fbfa8' }}>Loading articles...</div> : (

@@ -309,7 +309,7 @@ export default function DiseaseIdentifierScreen() {
                         <View style={{ marginBottom: 12 }}>
                           <Text style={s.managementSubtitle}>Prevention:</Text>
                           {result.management.preventiveMeasures.map((measure, i) => (
-                            <Text key={i} style={s.managementText}>• {measure}</Text>
+                            <Text key={i} style={s.managementText}>• {measure.measure || measure}</Text>
                           ))}
                         </View>
                       )}
@@ -318,7 +318,7 @@ export default function DiseaseIdentifierScreen() {
                         <View>
                           <Text style={s.managementSubtitle}>Treatment:</Text>
                           {result.management.treatmentMeasures.map((measure, i) => (
-                            <Text key={i} style={s.managementText}>• {measure}</Text>
+                            <Text key={i} style={s.managementText}>• {measure.measure || measure}</Text>
                           ))}
                         </View>
                       )}

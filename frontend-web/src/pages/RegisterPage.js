@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { toast, Field, Input, Button } from '../components/UI';
+import { getAvailableSoils } from '../api';
 import Logo from '../components/Logo';
 
 const DISTRICTS = [
   'Kadoma', 'Chegutu', 'Kwekwe', 'Muronzi', 'Chinhoyi', 'Zvimba', 'Sanyati',
 ];
 
-const SOIL_TYPES = ['Sandy', 'Sandy loam', 'Loam', 'Clay loam', 'Clay'];
 
 export default function RegisterPage({ onSwitchMode, onHome }) {
   const { register } = useAuth();
@@ -15,6 +15,9 @@ export default function RegisterPage({ onSwitchMode, onHome }) {
     fullName: '', email: '', phone: '', password: '', district: '', ward: '', farmName: '', farmSize: '', soilType: '', location: { latitude: null, longitude: null },
   });
   const [loading, setLoading] = useState(false);
+  const [soilTypes, setSoilTypes] = useState([]);
+
+  useEffect(() => { getAvailableSoils().then((response) => setSoilTypes((response.data?.soils || []).map((soil) => soil.soilType))).catch(() => toast.error('Could not load verified soil types')); }, []);
 
   const update = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
@@ -84,7 +87,7 @@ export default function RegisterPage({ onSwitchMode, onHome }) {
             <Field label="Soil Type *">
               <select value={form.soilType} onChange={update('soilType')} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, border: '1px solid #2f4d3c', background: '#122916', color: '#e6f6ea' }}>
                 <option value="">Select soil type</option>
-                {SOIL_TYPES.map((soil) => <option key={soil} value={soil}>{soil}</option>)}
+                {soilTypes.map((soil) => <option key={soil} value={soil}>{soil}</option>)}
               </select>
             </Field>
           </div>

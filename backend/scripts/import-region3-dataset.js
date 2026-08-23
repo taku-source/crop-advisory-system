@@ -1,6 +1,7 @@
 /**
  * Import the verified Region III JSON dataset into the structured knowledge collections.
- * Run from backend: node scripts/import-region3-dataset.js "D:\\Downloads\\verified-region-iii-dataset (1).json"
+ * Run from backend: npm run import:region3
+ * Or provide another JSON path as the first argument.
  */
 require('dotenv').config();
 const fs = require('fs');
@@ -10,11 +11,15 @@ const AgriculturalKnowledge = require('../models/AgriculturalKnowledge');
 const SoilData = require('../models/SoilData');
 const DiseaseKnowledge = require('../models/DiseaseKnowledge');
 
-const datasetPath = process.argv[2];
+const defaultDatasetPath = fs.readdirSync(__dirname)
+  .filter((file) => file.toLowerCase().endsWith('.json') && file.toLowerCase().includes('verified-region-iii'))
+  .sort()
+  .pop();
+const datasetPath = process.argv[2] || (defaultDatasetPath ? path.join(__dirname, defaultDatasetPath) : null);
 
 function requireDataset() {
   if (!datasetPath) {
-    throw new Error('Provide the dataset path as the first argument.');
+    throw new Error('No verified Region III JSON dataset found in backend/scripts.');
   }
 
   const absolutePath = path.resolve(datasetPath);
