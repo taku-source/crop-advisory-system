@@ -12,7 +12,7 @@ const DISTRICTS = [
 export default function RegisterPage({ onSwitchMode, onHome }) {
   const { register } = useAuth();
   const [form, setForm] = useState({
-    fullName: '', email: '', phone: '', password: '', district: '', ward: '', farmName: '', farmSize: '', soilType: '', location: { latitude: null, longitude: null },
+    fullName: '', email: '', phone: '', password: '', district: '', ward: '', farmName: '', farmSize: '', soilType: '', location: { latitude: null, longitude: null }, latitudeInput: '', longitudeInput: '',
   });
   const [loading, setLoading] = useState(false);
   const [soilTypes, setSoilTypes] = useState([]);
@@ -27,6 +27,14 @@ export default function RegisterPage({ onSwitchMode, onHome }) {
       ({ coords }) => setForm((prev) => ({ ...prev, location: { latitude: coords.latitude, longitude: coords.longitude } })),
       () => toast.error('Location was not captured. You can register and add GPS later from your profile.')
     );
+  };
+
+  const useManualLocation = () => {
+    const latitude = Number(form.latitudeInput);
+    const longitude = Number(form.longitudeInput);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return toast.error('Enter valid latitude and longitude');
+    setForm((prev) => ({ ...prev, location: { latitude, longitude } }));
+    toast.success('Manual location set');
   };
 
   const handleRegister = async (e) => {
@@ -94,6 +102,13 @@ export default function RegisterPage({ onSwitchMode, onHome }) {
 
           <button type="button" onClick={captureLocation} style={{ width: '100%', padding: '12px 16px', borderRadius: 12, border: '1px solid #2f4d3c', background: '#122916', color: '#ffffff', cursor: 'pointer', fontWeight: 700, marginBottom: 14 }}>
             {form.location.latitude ? `Location captured (${form.location.latitude.toFixed(3)}, ${form.location.longitude.toFixed(3)})` : 'Capture GPS location'}
+          </button>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+            <Input type="number" step="any" value={form.latitudeInput} onChange={update('latitudeInput')} placeholder="Latitude (fallback)" />
+            <Input type="number" step="any" value={form.longitudeInput} onChange={update('longitudeInput')} placeholder="Longitude (fallback)" />
+          </div>
+          <button type="button" onClick={useManualLocation} style={{ width: '100%', padding: '10px 16px', borderRadius: 10, border: '1px solid #2f4d3c', background: 'transparent', color: '#9fbfa8', cursor: 'pointer', fontWeight: 600, marginBottom: 8 }}>
+            Use manual coordinates if GPS is unavailable
           </button>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginTop: 14, flexWrap: 'wrap' }}>

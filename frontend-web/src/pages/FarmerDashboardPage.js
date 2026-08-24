@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { getAdvisories, getNotifications, getRecordSummary } from '../api';
+import { getSeasonalPlan, getNotifications, getRecordSummary } from '../api';
 import Logo from '../components/Logo';
 import { PageHeader, StatCard, Button, toast } from '../components/UI';
 
 export default function FarmerDashboardPage({ onNavigate }) {
   const [summary, setSummary] = useState(null);
-  const [advisories, setAdvisories] = useState([]);
+  const [plan, setPlan] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        const [advRes, noteRes, sumRes] = await Promise.all([
-          getAdvisories({ upcoming: true }),
+        const [planRes, noteRes, sumRes] = await Promise.all([
+          getSeasonalPlan(),
           getNotifications(),
           getRecordSummary(),
         ]);
-        setAdvisories(advRes.data.advisories.slice(0, 4));
+        setPlan(planRes.data.data);
         setNotifications(noteRes.data.notifications.slice(0, 4));
         setSummary(sumRes.data.summary);
       } catch {
@@ -61,7 +61,7 @@ export default function FarmerDashboardPage({ onNavigate }) {
 
       <PageHeader title="Farmer Dashboard" action={<Button onClick={() => onNavigate('advisories')}>View all advisories</Button>} />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 16, marginBottom: 26 }}>
-        <StatCard icon="📋" label="Upcoming Advisories" value={advisories.length} color="#1565c0" />
+        <StatCard icon="📋" label="Current Actions" value={plan?.currentActions?.length ?? 0} color="#1565c0" />
         <StatCard icon="🔔" label="Recent Alerts" value={notifications.length} color="#e65100" />
         <StatCard icon="📝" label="Farm Records" value={summary?.totalRecords ?? 0} color="#2e7d32" />
         <StatCard icon="💰" label="Estimated Expenses" value={`$${Math.round(summary?.totalExpenses || 0)}`} color="#6a1b9a" />
@@ -70,23 +70,12 @@ export default function FarmerDashboardPage({ onNavigate }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 18 }}>
         <section style={{ background: '#0f231a', borderRadius: 20, padding: 24, boxShadow: '0 10px 30px rgba(0,0,0,0.16)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <div><h2 style={{ margin: 0, fontSize: 18, color: '#e6f6ea' }}>Upcoming Advisories</h2><p style={{ margin: '6px 0 0', color: '#9fbfa8' }}>Latest guidance for your farm.</p></div>
+            <div><h2 style={{ margin: 0, fontSize: 18, color: '#e6f6ea' }}>What you should do now</h2><p style={{ margin: '6px 0 0', color: '#9fbfa8' }}>{plan?.crop || 'Selected crop'} · {plan?.currentStatus?.stage || 'Preparing plan'}</p></div>
             <Button variant="secondary" onClick={() => onNavigate('advisories')}>See all</Button>
           </div>
-          {advisories.length === 0
-            ? <div style={{ color: '#9fbfa8' }}>No upcoming advisories in your area yet.</div>
-            : advisories.map((advisory) => (
-              <div key={advisory._id} style={{ borderBottom: '1px solid #f1f1f1', padding: '14px 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 700 }}>{advisory.activity}</div>
-                    <div style={{ fontSize: 13, color: '#777' }}>{advisory.crop}</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}><strong>{new Date(advisory.recommendedDate).toLocaleDateString('en-GB')}</strong></div>
-                </div>
-                <div style={{ marginTop: 8, color: '#ffffff', fontSize: 13 }}>{advisory.description}</div>
-              </div>
-            ))}
+          <div style={{ color: '#ffffff', fontSize: 15, fontWeight: 700 }}>{plan?.currentActions?.[0]?.activity || 'No action is currently available'}</div>
+          <div style={{ marginTop: 8, color: '#cfd9c8', fontSize: 13, lineHeight: 1.6 }}>{plan?.currentActions?.[0]?.description || plan?.currentStatus?.message}</div>
+          <div style={{ marginTop: 12, color: '#8ee4a4', fontSize: 12 }}>Why: {plan?.currentActions?.[0]?.reason || 'Matched your crop, soil, season and Region III guidance.'}</div>
         </section>
 
         <section style={{ background: '#0f231a', borderRadius: 20, padding: 24, boxShadow: '0 10px 30px rgba(0,0,0,0.16)' }}>

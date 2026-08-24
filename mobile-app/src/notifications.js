@@ -40,8 +40,8 @@ export async function registerForPushNotifications() {
     });
   }
 
-  // Get Expo push token (wraps FCM/APNs)
-  const tokenData = await Notifications.getExpoPushTokenAsync();
+  // Get the native token expected by Firebase Admin on the backend.
+  const tokenData = await Notifications.getDevicePushTokenAsync();
   const fcmToken  = tokenData.data;
 
   // Save to backend so admin can send targeted pushes

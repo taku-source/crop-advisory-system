@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { login as apiLogin, register as apiRegister, getMe } from '../api';
+import { registerForPushNotifications } from '../notifications';
 
 const AuthContext = createContext();
 
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }) => {
           setToken(storedToken);
           const res = await getMe();
           setUser(res.data.user);
+          registerForPushNotifications().catch(() => {});
         }
       } catch {
         await AsyncStorage.removeItem('token');
@@ -32,6 +34,7 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.setItem('token', res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);
+    registerForPushNotifications().catch(() => {});
     return res.data;
   };
 
@@ -40,6 +43,7 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.setItem('token', res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);
+    registerForPushNotifications().catch(() => {});
     return res.data;
   };
 

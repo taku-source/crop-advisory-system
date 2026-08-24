@@ -3,6 +3,19 @@
 
 A full-stack mobile agricultural support platform for small-scale farmers.
 
+The supported research scope is rain-fed farming in Zimbabwe Agro-Ecological Region III. The system supports only these seven crops: **Maize, Sorghum, Pearl Millet, Cowpeas, Groundnuts, Sunflower, and Cotton**. The verified Region III dataset is the authoritative source for crop, soil, pest, and disease knowledge.
+
+## Core Farmer Flow
+
+```text
+Registration -> Login -> Crop selection (up to 3) -> GPS/context
+-> NASA POWER climate context + Open-Meteo forecast
+-> Verified knowledge + configured rules
+-> Personalised seasonal plan -> ongoing progress and notifications
+```
+
+The farmer dashboard is driven by the seasonal plan. It presents the current crop stage, what to do now, what to do next, weather context, and the reason/source for each recommendation. The `Advisory` collection is reserved for administrator-configured rules, local overrides, and seasonal announcements; it is not the underlying agricultural knowledge source.
+
 ---
 
 ## Project Structure
@@ -72,7 +85,7 @@ npm install
 cp .env.example .env
 # Edit .env: set MONGODB_URI, JWT_SECRET, Firebase credentials
 
-# Seed base demo records
+# Seed base demo records (does not replace the verified knowledge import)
 npm run seed
 
 # Import the verified Region III dataset after base seeding

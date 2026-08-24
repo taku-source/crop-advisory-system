@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+const { SUPPORTED_CROPS } = require('../config/supportedCrops');
 
 const diseaseKnowledgeSchema = new mongoose.Schema(
   {
     diseaseName:         { type: String, required: true },
-    crop:                { type: String, required: true },
+    crop:                { type: String, required: true, enum: SUPPORTED_CROPS },
     agroEcologicalRegion: { type: String, enum: ['I', 'II', 'III', 'IV', 'V'], default: 'III' },
     
     // Symptoms with weights for matching algorithm

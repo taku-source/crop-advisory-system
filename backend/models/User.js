@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { SUPPORTED_CROPS } = require('../config/supportedCrops');
 
 const userSchema = new mongoose.Schema(
   {
@@ -24,8 +25,8 @@ const userSchema = new mongoose.Schema(
     
     // Farm profile information for contextual advice
     soilType:       { type: String, default: '' },      // e.g., "Sandy loam", "Clay"
-    primaryCrop:    { type: String, default: '' },
-    primaryCrops:   { type: [{ type: String }], default: [], validate: { validator: (crops) => crops.length <= 3, message: 'Select no more than three crops' } },
+    primaryCrop:    { type: String, enum: ['', ...SUPPORTED_CROPS], default: '' },
+    primaryCrops:   { type: [{ type: String, enum: SUPPORTED_CROPS }], default: [], validate: { validator: (crops) => crops.length <= 3, message: 'Select no more than three crops' } },
     plantingDate:   { type: Date, default: null },
     cropSelectionDate: { type: Date, default: null },  // When farmer first selects crop after registration
     profileCompleted: { type: Boolean, default: false },

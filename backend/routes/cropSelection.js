@@ -8,6 +8,7 @@ const cropKnowledgeQuery = (cropName) => ({
   agroEcologicalRegion: 'III',
   isActive: true
 });
+const { SUPPORTED_CROPS } = require('../config/supportedCrops');
 
 /**
  * GET /api/crop-selection/available-crops
@@ -15,7 +16,7 @@ const cropKnowledgeQuery = (cropName) => ({
  */
 router.get('/available-crops', async (req, res) => {
   try {
-    const crops = await AgriculturalKnowledge.find({ agroEcologicalRegion: 'III', isActive: true })
+    const crops = await AgriculturalKnowledge.find({ cropName: { $in: SUPPORTED_CROPS }, agroEcologicalRegion: 'III', isActive: true })
       .select('cropName description soilRequirements source datasetVersion')
       .sort({ cropName: 1 }).lean();
     res.json({
@@ -87,8 +88,13 @@ router.post('/select-crop', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'You can select up to three crops' });
     }
 
+    const requested = requestedCrops.filter(Boolean);
+    if (requested.some((crop) => !SUPPORTED_CROPS.some((supported) => supported.toLowerCase() === String(crop).toLowerCase()))) {
+      return res.status(400).json({ success: false, message: 'One or more selected crops are outside the supported Region III crop scope' });
+    }
+
     const selectedCrops = await AgriculturalKnowledge.find({
-      cropName: { $in: requestedCrops.filter(Boolean).map((crop) => new RegExp(`^${String(crop).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')) },
+      cropName: { $in: requested.map((crop) => new RegExp(`^${String(crop).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')) },
       agroEcologicalRegion: 'III', isActive: true
     }).select('cropName source').lean();
     if (selectedCrops.length !== new Set(requestedCrops.filter(Boolean).map((crop) => crop.toLowerCase())).size) {

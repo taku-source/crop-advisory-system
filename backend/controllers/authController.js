@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const nasaPowerService = require('../services/nasaPowerService');
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '30d' });
@@ -14,6 +15,12 @@ exports.register = async (req, res) => {
 
     if (await User.findOne({ email })) {
       return res.status(400).json({ success: false, message: 'Email already registered' });
+    }
+
+    if (location?.latitude !== null && location?.latitude !== undefined) {
+      if (!nasaPowerService.isZimbabweLocation(Number(location.latitude), Number(location.longitude))) {
+        return res.status(400).json({ success: false, message: 'GPS location must be within Zimbabwe boundaries' });
+      }
     }
 
     const user = await User.create({

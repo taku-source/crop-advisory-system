@@ -19,7 +19,7 @@ import { ReportsPage, KnowledgePage } from './pages/ReportsKnowledgePages';
 const featureCards = [
   {
     title: 'Disease Identifier',
-    body: 'Rapid symptom matching for maize, beans, and tomatoes with confidence scoring.',
+    body: 'Symptom matching across seven Region III crops with transparent confidence scoring.',
     icon: '🔍',
     accent: '#4ade80',
     highlight: 'Maize Streak Virus · 75% match',
@@ -71,7 +71,7 @@ function DashboardPage() {
   const featureCards = [
     {
       title: 'Disease Identifier',
-      body: 'Rapid symptom matching for maize, beans, and tomatoes with confidence scoring.',
+      body: 'Symptom matching across seven Region III crops with transparent confidence scoring.',
       icon: '🔍',
       accent: '#4ade80',
       highlight: 'Maize Streak Virus · 75% match',
@@ -189,7 +189,7 @@ function DashboardPage() {
             <div style={{ display: 'grid', gap: 10 }}>
               {[
                 { label: 'Top dressing', detail: 'Apply fertilizer before the next rain' },
-                { label: 'Field scouting', detail: 'Inspect maize and tomato plots for pests' },
+                { label: 'Field scouting', detail: 'Inspect selected crops for pests and disease signs' },
                 { label: 'Recordkeeping', detail: 'Log input use and farm activity updates' },
               ].map((item) => (
                 <div key={item.label} style={{ background: '#122916', borderRadius: 14, border: '1px solid rgba(74,222,128,0.14)', padding: '12px 14px' }}>
@@ -305,7 +305,7 @@ function PublicHomepage({ onSignIn, onRegister, onHome }) {
                 <div style={{ color: '#6fe89a', fontFamily: "'Syne Mono', monospace", letterSpacing: '.16em', fontSize: 12, marginBottom: 12 }}>DISEASE DATABASE</div>
                 <h2 style={{ fontSize: 64, lineHeight: 0.95, margin: 0, fontFamily: "'Syne', sans-serif", fontWeight: 900 }}>Know your enemy before it spreads.</h2>
               </div>
-              <p style={{ color: '#9fbfa8', maxWidth: 460, margin: 0, lineHeight: 1.85 }}>9 diseases across Maize, Tomato, and Beans — matched by symptom, not guesswork. The disease library is built to help your team identify issues fast and act with confidence.</p>
+              <p style={{ color: '#9fbfa8', maxWidth: 460, margin: 0, lineHeight: 1.85 }}>Verified disease knowledge across the seven Region III crops, matched by symptom with transparent scoring and source references.</p>
             </div>
             <div style={{ background: '#0f231a', borderRadius: 24, padding: 26, border: '1px solid rgba(255,255,255,0.04)', color: '#9fbfa8', lineHeight: 1.8 }}>
               Disease information is available after login from the verified Region III disease knowledge base. Results are matched against farmer-selected symptoms and include confidence, management, prevention, and source references.

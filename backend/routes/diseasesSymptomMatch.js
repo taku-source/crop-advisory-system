@@ -3,6 +3,7 @@ const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
 const symptoMatcher = require('../algorithms/symptomMatcher');
 const DiseaseKnowledge = require('../models/DiseaseKnowledge');
+const { SUPPORTED_CROPS, isSupportedCrop } = require('../config/supportedCrops');
 
 /**
  * POST /api/diseases/match-symptoms
@@ -25,6 +26,9 @@ router.post('/match-symptoms', protect, async (req, res) => {
         success: false,
         message: 'Crop name is required'
       });
+    }
+    if (!isSupportedCrop(crop)) {
+      return res.status(400).json({ success: false, message: `Supported crops are: ${SUPPORTED_CROPS.join(', ')}` });
     }
 
     // Match symptoms using weighted algorithm
@@ -53,6 +57,7 @@ router.post('/match-symptoms', protect, async (req, res) => {
 router.get('/symptoms/:crop', protect, async (req, res) => {
   try {
     const crop = req.params.crop;
+    if (!isSupportedCrop(crop)) return res.status(400).json({ success: false, message: 'Crop is outside the supported seven-crop scope' });
 
     if (!crop) {
       return res.status(400).json({

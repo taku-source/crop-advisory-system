@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+const { SUPPORTED_CROPS } = require('../config/supportedCrops');
 
 const advisorySchema = new mongoose.Schema(
   {
-    crop:            { type: String, required: true },
+    crop:            { type: String, required: true, enum: SUPPORTED_CROPS },
     activity:        { type: String, required: true },
     description:     { type: String, required: true },
     recommendedDate: { type: Date, default: null },

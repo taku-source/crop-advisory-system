@@ -101,6 +101,12 @@ class SeasonalPlanGenerator {
           daysToOptimalPlanting: daysToPlanting,
           message: this.getStageMessage(currentStage, daysToPlanting, cropKnowledge)
         },
+        weatherContext: weatherData ? {
+          sources: weatherData.sources || [],
+          recent: weatherData.recent?.data?.slice(-1)[0] || null,
+          forecastRainfallMm: this.getForecastRainfall(weatherData),
+          forecastPeriod: weatherData.forecast?.period || null
+        } : null,
         currentActions: currentActions,
         seasonalTimeline: seasonalTimeline,
         cropGuidance: {

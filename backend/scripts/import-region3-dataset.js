@@ -10,6 +10,10 @@ const mongoose = require('mongoose');
 const AgriculturalKnowledge = require('../models/AgriculturalKnowledge');
 const SoilData = require('../models/SoilData');
 const DiseaseKnowledge = require('../models/DiseaseKnowledge');
+const { SUPPORTED_CROPS } = require('../config/supportedCrops');
+
+const cropIsSupported = (crop) => SUPPORTED_CROPS.some((supported) => supported.toLowerCase() === String(crop || '').toLowerCase());
+const supportedCropsOnly = (crops) => (crops || []).filter(cropIsSupported);
 
 const defaultDatasetPath = fs.readdirSync(__dirname)
   .filter((file) => file.toLowerCase().endsWith('.json') && file.toLowerCase().includes('verified-region-iii'))
@@ -80,11 +84,12 @@ function normalizeSeverity(value) {
 }
 
 function mapUpdatedAgriculturalKnowledge(dataset, sourceMap) {
-  return (dataset.agricultural_knowledge || []).map((crop) => {
+  return (dataset.agriculturalKnowledge || dataset.agricultural_knowledge || []).filter((crop) => cropIsSupported(crop.crop || crop.cropName)).map((crop) => {
     const sourceRecords = (crop.sources || []).map((source) => sourceMap.get(source.sourceId) || source);
     const references = nestedSourceDetails(sourceRecords, sourceMap);
     const plantingPeriod = crop.planting?.recommendedPeriod?.value || 'Effective-rain planting in the locally configured summer cropping window.';
-    const stages = (crop.growthStages || []).map((stage) => ({
+    const growthStageValues = Array.isArray(crop.growthStages) ? crop.growthStages : Object.entries(crop.growthStages || {}).map(([stage, details]) => ({ ...details, stage }));
+    const stages = growthStageValues.map((stage) => ({
       stageName: stage.stage || stage.name || 'Unspecified',
       daysAfterPlanting: stage.typicalDaysAfterPlanting,
       activities: (stage.activities || stage.actions || []).map((activity) => ({
@@ -99,6 +104,10 @@ function mapUpdatedAgriculturalKnowledge(dataset, sourceMap) {
       description: `${rule.why || 'Verified crop management rule'} Conditions: ${(rule.conditions || []).join('; ')}.`,
       timing: rule.stage || 'As conditions indicate'
     })));
+    const fertilizerRecords = Object.entries(crop.fertilizer || {})
+      .filter(([, value]) => value && typeof value === 'object' && !Array.isArray(value) && value.rule)
+      .map(([type, value]) => ({ type, timing: value.rule, description: value.rule }));
+    const pestRecords = Array.isArray(crop.pests) ? crop.pests : (crop.pests?.majorPests || []);
     const soil = crop.soil || {};
     return {
       cropName: crop.crop,
@@ -107,10 +116,10 @@ function mapUpdatedAgriculturalKnowledge(dataset, sourceMap) {
       plantingPeriod,
       plantingWindow: crop.planting?.window || {},
       growthStages: stages.map((stage) => ({ ...stage, activities: [...stage.activities, ...activities.filter((activity) => activity.timing === stage.stageName)] })),
-      fertiliserRecs: asList(crop.fertilizer?.recommendations || crop.fertilizer).map((recommendation) => ({
-        type: recommendation.type || 'Fertiliser', rateKgPerHa: parseRate(recommendation.rate), timing: recommendation.timing || '', description: recommendation.value || recommendation.rate || ''
+      fertiliserRecs: fertilizerRecords.length ? fertilizerRecords : asList(crop.fertilizer?.recommendations || crop.fertilizer).map((recommendation) => ({
+        type: recommendation.type || 'Fertiliser', rateKgPerHa: parseRate(recommendation.rate || recommendation.rule), timing: recommendation.timing || crop.fertilizer?.applicationTiming || '', description: recommendation.value || recommendation.rate || recommendation.rule || ''
       })),
-      pestDiseaseManagement: asList(crop.pests?.value || crop.pests).map((pest) => ({ pestName: pest.name || pest.pest || pest, controlMeasures: asList(pest.management).join('; '), preventiveMeasures: asList(pest.prevention).join('; ') })),
+      pestDiseaseManagement: pestRecords.map((pest) => ({ pestName: typeof pest === 'string' ? pest : pest.name || pest.pest || 'Verified pest', controlMeasures: asList(pest.management).join('; '), preventiveMeasures: asList(pest.prevention).join('; ') })),
       soilRequirements: {
         preferredType: soil.preferredTypes?.join?.('; ') || soil.preferredType || soil.suitableSoils?.join?.('; ') || '',
         requirements: soil.requirements || soil.notes || soil.unsuitableConditions?.join?.('; ') || ''
@@ -130,14 +139,14 @@ function mapUpdatedAgriculturalKnowledge(dataset, sourceMap) {
 }
 
 function mapUpdatedSoilData(dataset, sourceMap) {
-  return (dataset.soil_data || []).map((soil) => {
+  return (dataset.soilData || dataset.soil_data || []).map((soil) => {
     const references = nestedSourceDetails(soil.source, sourceMap);
     return {
       soilType: soil.soilType,
       agroEcologicalRegion: soil.region || 'III',
       characteristics: { texture: (soil.characteristics || []).join?.('; ') || soil.characteristics || '', structure: '', color: '', organicMatter: '' },
-      suitableCrops: soil.suitableCrops || [],
-      unsuitableCrops: soil.unsuitableCrops || [],
+      suitableCrops: supportedCropsOnly(soil.suitableCrops),
+      unsuitableCrops: supportedCropsOnly(soil.unsuitableCrops),
       drainage: { type: soil.drainage || '', characteristics: '' },
       fertility: { rating: soil.fertilityCharacteristics?.rating || '', limitingNutrients: soil.fertilityCharacteristics?.limitingNutrients || [], recommendations: (soil.soilManagement || []).join?.('; ') || '' },
       managementPractices: (soil.soilManagement || []).map((practice) => ({ practice, description: practice, timing: 'As stated in the verified dataset' })),
@@ -148,7 +157,7 @@ function mapUpdatedSoilData(dataset, sourceMap) {
 }
 
 function mapUpdatedDiseaseKnowledge(dataset, sourceMap) {
-  return (dataset.disease_knowledge || []).map((disease) => {
+  return (dataset.diseaseKnowledge || dataset.disease_knowledge || []).filter((disease) => cropIsSupported(disease.affectedCrop)).map((disease) => {
     const references = nestedSourceDetails(disease.source, sourceMap);
     return {
       diseaseName: disease.diseaseName || disease.diseaseId,
@@ -156,7 +165,7 @@ function mapUpdatedDiseaseKnowledge(dataset, sourceMap) {
       agroEcologicalRegion: 'III',
       symptoms: (disease.symptoms || []).map((symptom) => ({ symptom: symptom.name || symptom.symptom, weight: symptom.weight || 5, description: symptom.description || '', affectedParts: symptom.affectedParts || [] })),
       causes: Array.isArray(disease.causes) ? disease.causes.join('; ') : disease.causes || '', causativeAgent: '', favourableConditions: asList(disease.favourableConditions).map((condition) => ({ condition: String(condition), description: String(condition) })),
-      severity: normalizeSeverity(disease.severity), severityDescription: disease.severity || '',
+      severity: normalizeSeverity(disease.severity || disease.severityLevels), severityDescription: Array.isArray(disease.severityLevels) ? disease.severityLevels.join(', ') : (disease.severity || disease.severityLevels || ''),
       managementMeasures: asList(disease.management).map((measure) => ({ measure: String(measure), description: String(measure), timing: '' })),
       preventiveMeasures: asList(disease.prevention).map((measure) => ({ measure: String(measure), description: String(measure) })),
       source: references.source, reference: references.reference, sourceIds: references.sourceIds,
@@ -188,7 +197,7 @@ function cropPests(dataset, cropId, sourceMap) {
 }
 
 function mapAgriculturalKnowledge(dataset, sourceMap) {
-  return (dataset.crops || []).map((crop) => {
+  return (dataset.crops || []).filter((crop) => cropIsSupported(crop.cropName || crop.name || crop.crop)).map((crop) => {
     const cropName = crop.cropName || crop.name || crop.crop;
     const cropId = crop.cropId || cropName?.toUpperCase().replace(/[^A-Z0-9]+/g, '_');
     if (!cropName) throw new Error('Every dataset crop must contain cropName, name, or crop.');
@@ -273,8 +282,8 @@ function mapSoilData(dataset, sourceMap) {
         color: '',
         organicMatter: ''
       },
-      suitableCrops: soil.suitableCrops || [],
-      unsuitableCrops: soil.unsuitableCrops || [],
+      suitableCrops: supportedCropsOnly(soil.suitableCrops),
+      unsuitableCrops: supportedCropsOnly(soil.unsuitableCrops),
       drainage: {
         type: soil.drainage || '',
         characteristics: ''
@@ -300,7 +309,7 @@ function mapSoilData(dataset, sourceMap) {
 }
 
 function mapDiseaseKnowledge(dataset, sourceMap) {
-  return (dataset.diseaseKnowledge || []).map((disease) => {
+  return (dataset.diseaseKnowledge || []).filter((disease) => cropIsSupported(disease.affectedCrop)).map((disease) => {
     const references = sourceDetails(sourceMap, [disease.sourceId]);
     return {
       diseaseName: disease.diseaseName || disease.diseaseId,
@@ -346,9 +355,9 @@ async function run() {
   }
 
   const sourceMap = new Map((dataset.sources || []).map((source) => [source.sourceId, source]));
-  const agriculturalKnowledge = dataset.agricultural_knowledge ? mapUpdatedAgriculturalKnowledge(dataset, sourceMap) : mapAgriculturalKnowledge(dataset, sourceMap);
-  const soilData = dataset.soil_data ? mapUpdatedSoilData(dataset, sourceMap) : mapSoilData(dataset, sourceMap);
-  const diseaseKnowledge = dataset.disease_knowledge ? mapUpdatedDiseaseKnowledge(dataset, sourceMap) : mapDiseaseKnowledge(dataset, sourceMap);
+  const agriculturalKnowledge = (dataset.agriculturalKnowledge || dataset.agricultural_knowledge) ? mapUpdatedAgriculturalKnowledge(dataset, sourceMap) : mapAgriculturalKnowledge(dataset, sourceMap);
+  const soilData = (dataset.soilData || dataset.soil_data) ? mapUpdatedSoilData(dataset, sourceMap) : mapSoilData(dataset, sourceMap);
+  const diseaseKnowledge = (dataset.diseaseKnowledge || dataset.disease_knowledge) ? mapUpdatedDiseaseKnowledge(dataset, sourceMap) : mapDiseaseKnowledge(dataset, sourceMap);
 
   if (!agriculturalKnowledge.length || !soilData.length || !diseaseKnowledge.length) {
     throw new Error('Dataset must contain crops, soilData, and diseaseKnowledge records.');
@@ -366,7 +375,7 @@ async function run() {
 
     console.log(JSON.stringify({
       dataset: dataset.datasetMetadata.datasetName,
-      version: dataset.datasetMetadata.datasetVersion,
+      version: dataset.datasetMetadata.version || dataset.datasetMetadata.datasetVersion,
       imported: {
         agriculturalKnowledge: agriculturalKnowledge.length,
         soilData: soilData.length,

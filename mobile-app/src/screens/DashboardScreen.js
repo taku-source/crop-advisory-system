@@ -4,13 +4,14 @@ import {
   RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { getAdvisories, getNotifications, getRecordSummary } from '../api';
+import { getNotifications, getRecordSummary } from '../api';
+import { getSeasonalPlan } from '../api/farmerApi';
 
 const GREEN = '#2e7d32';
 
 export default function DashboardScreen({ navigation }) {
   const { user, logout }          = useAuth();
-  const [advisories, setAdvisories] = useState([]);
+  const [plan, setPlan] = useState(null);
   const [notifications, setNotifs]  = useState([]);
   const [summary, setSummary]       = useState(null);
   const [loading, setLoading]       = useState(true);
@@ -18,12 +19,12 @@ export default function DashboardScreen({ navigation }) {
 
   const fetchAll = async () => {
     try {
-      const [advRes, notifRes, sumRes] = await Promise.all([
-        getAdvisories({ upcoming: true }),
+      const [planRes, notifRes, sumRes] = await Promise.all([
+        getSeasonalPlan(),
         getNotifications(),
         getRecordSummary(),
       ]);
-      setAdvisories(advRes.data.advisories.slice(0, 3));
+      setPlan(planRes.data?.data || null);
       setNotifs(notifRes.data.notifications.slice(0, 3));
       setSummary(sumRes.data.summary);
     } catch { /* silent fail — user sees empty state */ }
@@ -86,7 +87,7 @@ export default function DashboardScreen({ navigation }) {
       {summary && (
         <View style={s.statsRow}>
           {[
-            { label: 'Records', val: summary.totalRecords, icon: '📝' },
+            { label: 'Current actions', val: plan?.currentActions?.length || 0, icon: '🎯' },
             { label: 'Plantings', val: summary.byCategory?.Planting || 0, icon: '🌱' },
             { label: 'Harvests', val: summary.byCategory?.Harvest || 0, icon: '🌾' },
             { label: 'Expenses', val: `$${Math.round(summary.totalExpenses || 0)}`, icon: '💰' },
@@ -113,33 +114,25 @@ export default function DashboardScreen({ navigation }) {
         </View>
       </View>
 
-      {/* ── Upcoming advisories ── */}
-      {advisories.length > 0 && (
+      {/* ── Personalised recommendation ── */}
+      {plan && (
         <View style={s.section}>
           <View style={s.sectionHeader}>
-            <Text style={s.sectionTitle}>Upcoming Activities</Text>
+            <Text style={s.sectionTitle}>What you should do now</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Advisories')}>
-              <Text style={s.seeAll}>See all →</Text>
+              <Text style={s.seeAll}>Full plan →</Text>
             </TouchableOpacity>
           </View>
-          {advisories.map((a) => {
-            const diff = Math.ceil((new Date(a.recommendedDate) - now) / (1000 * 60 * 60 * 24));
-            const urgColor = diff <= 3 ? '#e53935' : diff <= 7 ? '#fb8c00' : GREEN;
-            return (
-              <View key={a._id} style={s.advisoryCard}>
-                <View style={[s.advisoryDot, { backgroundColor: urgColor }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={s.advisoryActivity}>{a.activity}</Text>
-                  <Text style={s.advisoryCrop}>{a.crop}</Text>
-                </View>
-                <View style={[s.daysBadge, { backgroundColor: `${urgColor}15` }]}>
-                  <Text style={[s.daysText, { color: urgColor }]}>
-                    {diff === 0 ? 'Today' : diff === 1 ? 'Tomorrow' : `${diff}d`}
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
+          <View style={s.planCard}>
+            <Text style={s.planCrop}>{plan.crop} · {plan.currentStatus?.stage || 'Current stage'}</Text>
+            <Text style={s.advisoryActivity}>{plan.currentActions?.[0]?.activity || 'Follow your seasonal guidance'}</Text>
+            <Text style={s.advisoryDescription}>{plan.currentActions?.[0]?.description || plan.currentStatus?.message}</Text>
+            <Text style={s.planReason}>Why: {plan.currentActions?.[0]?.reason || 'Matched your crop, soil, season and Region III guidance.'}</Text>
+          </View>
+          <View style={s.weatherCard}>
+            <Text style={s.weatherTitle}>Weather context</Text>
+            <Text style={s.weatherText}>{plan.weatherContext ? `Forecast rainfall: ${plan.weatherContext.forecastRainfallMm?.toFixed?.(1) || 0} mm` : 'Add your GPS location to receive local weather guidance.'}</Text>
+          </View>
         </View>
       )}
 
@@ -204,6 +197,13 @@ const s = StyleSheet.create({
   advisoryDot: { width: 10, height: 10, borderRadius: 5, marginRight: 12 },
   advisoryActivity: { fontSize: 14, fontWeight: '700', color: '#1a1a1a' },
   advisoryCrop: { fontSize: 11, color: '#888', marginTop: 1 },
+  advisoryDescription: { fontSize: 12, color: '#666', lineHeight: 17, marginTop: 8 },
+  planCard: { backgroundColor: '#fff', borderRadius: 12, padding: 14, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },
+  planCrop: { fontSize: 11, color: GREEN, fontWeight: '700', marginBottom: 6 },
+  planReason: { fontSize: 11, color: '#777', lineHeight: 16, marginTop: 8 },
+  weatherCard: { backgroundColor: '#e8f5e9', borderRadius: 12, padding: 12, marginTop: 10 },
+  weatherTitle: { fontSize: 12, color: GREEN, fontWeight: '800' },
+  weatherText: { fontSize: 12, color: '#55785b', marginTop: 4 },
   daysBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
   daysText: { fontSize: 11, fontWeight: '800' },
   notifCard: { backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 8, borderLeftWidth: 4, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 5, elevation: 1 },

@@ -2,6 +2,7 @@ const AgriculturalKnowledge = require('../models/AgriculturalKnowledge');
 const SoilData = require('../models/SoilData');
 const Advisory = require('../models/Advisory');
 const nasaPowerService = require('../services/nasaPowerService');
+const { isSupportedCrop } = require('../config/supportedCrops');
 
 class AdvisoryRuleEngine {
   /**
@@ -14,6 +15,9 @@ class AdvisoryRuleEngine {
       // Validate farmer has required fields
       if (!(farmer.primaryCrop || farmer.primaryCrops?.[0])) {
         throw new Error('Farmer must have a primary crop selected');
+      }
+      if (!isSupportedCrop(farmer.primaryCrop || farmer.primaryCrops[0])) {
+        throw new Error('Farmer crop is outside the supported seven-crop scope');
       }
 
       // Step 1: Get agricultural knowledge for farmer's crop

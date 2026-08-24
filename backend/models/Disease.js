@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+const { SUPPORTED_CROPS } = require('../config/supportedCrops');
 
 const diseaseSchema = new mongoose.Schema(
   {
-    crop:        { type: String, required: true },
+    crop:        { type: String, required: true, enum: SUPPORTED_CROPS },
     diseaseName: { type: String, required: true },
     symptoms:    [{ type: String }],              // Array of symptom strings
     description: { type: String, default: '' },

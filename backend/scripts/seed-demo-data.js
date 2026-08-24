@@ -30,10 +30,10 @@ const DEMO_RECORDS = [
   },
   {
     category: 'Expense',
-    crop: 'Tomato',
+    crop: 'Groundnuts',
     date: new Date('2025-02-05'),
-    notes: 'Bought tomato seedlings and stakes.',
-    item: 'Tomato seedlings',
+    notes: 'Bought groundnut seed for the next planting window.',
+    item: 'Groundnut seed',
     cost: 120,
   },
   {

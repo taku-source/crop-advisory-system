@@ -75,6 +75,13 @@ export default function FarmerAdvisoriesPage() {
             <p style={{ color: '#d8f2db', lineHeight: 1.6, marginBottom: 0 }}>{plan.currentStatus?.message}</p>
           </section>
 
+          <section style={{ background: '#0f231a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: 18 }}>
+            <h3 style={{ color: '#ffffff', margin: '0 0 8px' }}>Weather context for your location</h3>
+            <div style={{ color: '#cfd9c8', fontSize: 13 }}>
+              {plan.weatherContext ? `Forecast rainfall: ${plan.weatherContext.forecastRainfallMm?.toFixed?.(1) || 0} mm · Sources: ${plan.weatherContext.sources.join(' + ')}` : 'GPS weather context is unavailable. Add a location to your profile for local weather guidance.'}
+            </div>
+          </section>
+
           <section style={{ background: '#0f231a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: 22 }}>
             <h3 style={{ color: '#ffffff', marginTop: 0 }}>Your next actions</h3>
             {plan.currentActions?.length ? plan.currentActions.map((action, index) => (

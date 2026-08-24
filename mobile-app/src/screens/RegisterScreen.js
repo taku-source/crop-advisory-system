@@ -27,7 +27,7 @@ const FIELDS = [
 
 export default function RegisterScreen({ navigation }) {
   const { register }    = useAuth();
-  const [form, setForm] = useState({ fullName:'', email:'', phone:'', password:'', district:'', ward:'', farmName:'', farmSize:'', soilType:'', location:{ latitude:null, longitude:null } });
+  const [form, setForm] = useState({ fullName:'', email:'', phone:'', password:'', district:'', ward:'', farmName:'', farmSize:'', soilType:'', location:{ latitude:null, longitude:null }, latitudeInput:'', longitudeInput:'' });
   const [loading, setLoading] = useState(false);
   const [soils, setSoils] = useState([]);
 
@@ -44,6 +44,13 @@ export default function RegisterScreen({ navigation }) {
     } catch (error) {
       Alert.alert('Location not captured', 'You can register without GPS and add your coordinates later from your profile.');
     }
+  };
+
+  const useManualLocation = () => {
+    const latitude = Number(form.latitudeInput);
+    const longitude = Number(form.longitudeInput);
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return Alert.alert('Invalid location', 'Enter valid latitude and longitude.');
+    setForm((f) => ({ ...f, location: { latitude, longitude } }));
   };
 
   const handleRegister = async () => {
@@ -93,6 +100,11 @@ export default function RegisterScreen({ navigation }) {
       <TouchableOpacity style={s.locationButton} onPress={captureLocation}>
         <Text style={s.locationText}>{form.location.latitude ? `Location captured (${form.location.latitude.toFixed(3)}, ${form.location.longitude.toFixed(3)})` : 'Capture GPS location'}</Text>
       </TouchableOpacity>
+      <View style={s.coordinateRow}>
+        <TextInput style={[s.input, s.coordinateInput]} value={form.latitudeInput} onChangeText={upd('latitudeInput')} placeholder="Latitude fallback" keyboardType="numeric" />
+        <TextInput style={[s.input, s.coordinateInput]} value={form.longitudeInput} onChangeText={upd('longitudeInput')} placeholder="Longitude fallback" keyboardType="numeric" />
+      </View>
+      <TouchableOpacity style={s.manualButton} onPress={useManualLocation}><Text style={s.manualText}>Use manual coordinates if GPS is unavailable</Text></TouchableOpacity>
 
       <View style={s.infoBox}>
         <Text style={s.infoText}>📍 Capture your GPS location so the app can use local weather context for your seasonal guidance.</Text>
@@ -136,4 +148,8 @@ const s = StyleSheet.create({
   optionText: { color: '#234b2b', fontSize: 12 },
   locationButton: { backgroundColor: '#e8f5e9', borderRadius: 10, padding: 14, marginTop: 18, alignItems: 'center' },
   locationText: { color: GREEN, fontWeight: '700', fontSize: 13 },
+  coordinateRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  coordinateInput: { flex: 1 },
+  manualButton: { padding: 10, alignItems: 'center' },
+  manualText: { color: '#55785b', fontSize: 12, fontWeight: '600' },
 });

@@ -439,7 +439,7 @@ export default function AdvisoriesPage() {
   return (
     <div>
       <PageHeader
-        title={`Region III Advisory Rules (${advisories.length})`}
+        title={`Configured Region III Rules and Overrides (${advisories.length})`}
         action={
           <div
             style={{
@@ -489,7 +489,7 @@ export default function AdvisoriesPage() {
             </Select>
 
             <Button onClick={openAdd}>
-              + Add Advisory Rule
+              + Add Configured Rule
             </Button>
           </div>
         }
@@ -514,15 +514,15 @@ export default function AdvisoriesPage() {
       )}
 
       {/* =====================================================
-          ADD / EDIT ADVISORY RULE
+              ADD / EDIT CONFIGURED RULE
           ===================================================== */}
 
       {modalOpen && (
         <Modal
           title={
             editing
-              ? 'Edit Advisory Rule'
-              : '📋 New Region III Advisory Rule'
+              ? 'Edit Configured Rule'
+              : '📋 New Region III Configured Rule'
           }
           onClose={() => setModalOpen(false)}
         >
@@ -543,7 +543,7 @@ export default function AdvisoriesPage() {
                 color: '#9fbfa8',
               }}
             >
-              This advisory is used by the rule-based
+              This rule is an administrator-configured input used by the rule-based
               decision engine to generate contextual
               recommendations for rain-fed farmers in
               Agro-Ecological Region III.
