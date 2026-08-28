@@ -2,6 +2,7 @@ const AgriculturalKnowledge = require('../models/AgriculturalKnowledge');
 const SoilData = require('../models/SoilData');
 const DiseaseKnowledge = require('../models/DiseaseKnowledge');
 const CropProgress = require('../models/CropProgress');
+const { canonicalCrop } = require('../config/supportedCrops');
 
 /**
  * Generate a seasonal crop plan for a farmer
@@ -9,7 +10,7 @@ const CropProgress = require('../models/CropProgress');
  */
 class SeasonalPlanGenerator {
   async generateSeasonalPlans(farmer, weatherData = null) {
-    const cropNames = farmer.primaryCrops?.length ? farmer.primaryCrops : [farmer.primaryCrop];
+    const cropNames = (farmer.primaryCrops?.length ? farmer.primaryCrops : [farmer.primaryCrop]).map(canonicalCrop);
     const plans = [];
 
     for (const cropName of cropNames.filter(Boolean).slice(0, 3)) {
@@ -99,6 +100,7 @@ class SeasonalPlanGenerator {
           stage: currentStage,
           plantingDate: farmer.plantingDate,
           daysToOptimalPlanting: daysToPlanting,
+          plantingWindow: this.getPlantingWindowStatus(cropKnowledge),
           message: this.getStageMessage(currentStage, daysToPlanting, cropKnowledge)
         },
         weatherContext: weatherData ? {
@@ -164,11 +166,29 @@ class SeasonalPlanGenerator {
    */
   daysUntilOptimalPlanting(cropKnowledge) {
     const startMonth = cropKnowledge?.plantingWindow?.startMonth;
-    if (!startMonth) return null;
+    const endMonth = cropKnowledge?.plantingWindow?.endMonth || startMonth;
+    if (!startMonth || !endMonth) return null;
     const today = new Date();
     const currentMonth = today.getMonth() + 1;
+    const isInWindow = startMonth <= endMonth
+      ? currentMonth >= startMonth && currentMonth <= endMonth
+      : currentMonth >= startMonth || currentMonth <= endMonth;
+    if (isInWindow) return 0;
     const monthsUntil = (startMonth - currentMonth + 12) % 12;
     return monthsUntil * 30;
+  }
+
+  getPlantingWindowStatus(cropKnowledge) {
+    const startMonth = cropKnowledge?.plantingWindow?.startMonth;
+    const endMonth = cropKnowledge?.plantingWindow?.endMonth || startMonth;
+    if (!startMonth || !endMonth) return null;
+
+    const currentMonth = new Date().getMonth() + 1;
+    const isOpen = startMonth <= endMonth
+      ? currentMonth >= startMonth && currentMonth <= endMonth
+      : currentMonth >= startMonth || currentMonth <= endMonth;
+
+    return { startMonth, endMonth, isOpen };
   }
 
   /**

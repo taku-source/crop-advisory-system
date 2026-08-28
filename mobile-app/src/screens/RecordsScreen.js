@@ -7,9 +7,9 @@ import { getRecords, createRecord, updateRecord, deleteRecord, getRecordSummary 
 
 const GREEN = '#2e7d32';
 
-const CATEGORIES = ['Planting', 'Fertilizer', 'Pesticide', 'Harvest', 'Expense'];
-const CAT_ICONS = { Planting: '🌱', Fertilizer: '💊', Pesticide: '🧪', Harvest: '🌾', Expense: '💰' };
-const CAT_COLORS = { Planting: '#4caf50', Fertilizer: '#2196f3', Pesticide: '#ff9800', Harvest: '#8bc34a', Expense: '#f44336' };
+const CATEGORIES = ['Planting', 'Fertilizer', 'Pesticide', 'Harvest', 'Expense', 'Crop Progress'];
+const CAT_ICONS = { Planting: '🌱', Fertilizer: '💊', Pesticide: '🧪', Harvest: '🌾', Expense: '💰', 'Crop Progress': '📈' };
+const CAT_COLORS = { Planting: '#4caf50', Fertilizer: '#2196f3', Pesticide: '#ff9800', Harvest: '#8bc34a', Expense: '#f44336', 'Crop Progress': '#7e57c2' };
 
 const CATEGORY_FIELDS = {
   Planting:   [{ key: 'crop', label: 'Crop *', required: true }, { key: 'variety', label: 'Variety' }, { key: 'area', label: 'Area (e.g. 1 ha)' }],
@@ -17,6 +17,7 @@ const CATEGORY_FIELDS = {
   Pesticide:  [{ key: 'crop', label: 'Crop' }, { key: 'productName', label: 'Chemical/Product *', required: true }, { key: 'quantity', label: 'Quantity Used *', required: true }],
   Harvest:    [{ key: 'crop', label: 'Crop *', required: true }, { key: 'variety', label: 'Variety' }, { key: 'quantityHarvested', label: 'Quantity Harvested *', required: true }],
   Expense:    [{ key: 'item', label: 'Item/Description *', required: true }, { key: 'cost', label: 'Cost (USD) *', required: true, keyboard: 'numeric' }],
+  'Crop Progress': [{ key: 'crop', label: 'Crop *', required: true }, { key: 'growthStage', label: 'Growth Stage *', required: true }, { key: 'progressPercent', label: 'Progress (%)', keyboard: 'numeric' }, { key: 'plantHeight', label: 'Plant Height' }, { key: 'observedIssues', label: 'Observed Issues' }],
 };
 
 export default function RecordsScreen() {
@@ -160,6 +161,10 @@ export default function RecordsScreen() {
             {r.area     && <Text style={s.recordField}><Text style={s.fieldKey}>Area: </Text>{r.area}</Text>}
             {r.productName && <Text style={s.recordField}><Text style={s.fieldKey}>Product: </Text>{r.productName} — {r.quantity}</Text>}
             {r.quantityHarvested && <Text style={s.recordField}><Text style={s.fieldKey}>Harvested: </Text>{r.quantityHarvested}</Text>}
+            {r.growthStage && <Text style={s.recordField}><Text style={s.fieldKey}>Growth stage: </Text>{r.growthStage}</Text>}
+            {r.progressPercent != null && <Text style={s.recordField}><Text style={s.fieldKey}>Progress: </Text>{r.progressPercent}%</Text>}
+            {r.plantHeight && <Text style={s.recordField}><Text style={s.fieldKey}>Plant height: </Text>{r.plantHeight}</Text>}
+            {r.observedIssues && <Text style={s.recordField}><Text style={s.fieldKey}>Observed issues: </Text>{r.observedIssues}</Text>}
             {r.item     && <Text style={s.recordField}><Text style={s.fieldKey}>Item: </Text>{r.item}</Text>}
             {r.cost     && <Text style={s.recordField}><Text style={s.fieldKey}>Cost: </Text>${r.cost}</Text>}
             {r.notes    && <Text style={[s.recordField, { fontStyle: 'italic', color: '#888' }]}>{r.notes}</Text>}

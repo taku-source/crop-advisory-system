@@ -12,6 +12,41 @@ const SoilData = require('../models/SoilData');
 const DiseaseKnowledge = require('../models/DiseaseKnowledge');
 const { SUPPORTED_CROPS } = require('../config/supportedCrops');
 
+const STAGE_SCHEDULES = {
+  Maize: [0, 7, 14, 45, 75, 120, 165],
+  Sorghum: [0, 7, 14, 45, 75, 105, 150],
+  'Pearl Millet': [0, 7, 14, 40, 70, 95, 135],
+  Cowpeas: [0, 7, 10, 35, 55, 80, 115],
+  Groundnuts: [0, 7, 14, 45, 70, 105, 140],
+  Sunflower: [0, 7, 12, 35, 60, 90, 125],
+  Cotton: [0, 7, 14, 50, 80, 120, 180]
+};
+
+const CONTEXTUAL_STAGE_NAMES = {
+  Maize: ['land preparation', 'planting', 'emergence', 'vegetative growth', 'flowering', 'grain filling', 'harvest'],
+  Sorghum: ['land preparation', 'planting', 'emergence', 'vegetative growth', 'flowering', 'grain filling', 'harvest'],
+  'Pearl Millet': ['land preparation', 'planting', 'emergence', 'tillering', 'flowering', 'grain filling', 'harvest'],
+  Cowpeas: ['land preparation', 'planting', 'vegetative growth', 'flowering', 'pod filling', 'harvest', 'post-harvest'],
+  Groundnuts: ['land preparation', 'planting', 'vegetative growth', 'flowering/pegging', 'pod filling', 'harvest', 'post-harvest'],
+  Sunflower: ['land preparation', 'planting', 'establishment', 'vegetative growth', 'bud/flowering', 'seed filling', 'harvest'],
+  Cotton: ['land preparation', 'planting', 'establishment', 'squaring', 'flowering', 'boll filling', 'boll opening/harvest']
+};
+
+function contextualizeStages(cropName, sourceStages) {
+  const names = CONTEXTUAL_STAGE_NAMES[cropName] || CONTEXTUAL_STAGE_NAMES.Maize;
+  const sourceIndexes = [null, null, 0, 1, 2, 3, [4, 5]];
+  return names.map((stageName, index) => {
+    const sourceIndex = sourceIndexes[index];
+    const indexes = Array.isArray(sourceIndex) ? sourceIndex : [sourceIndex];
+    const source = indexes.filter((value) => value !== null).map((value) => sourceStages[value]).filter(Boolean);
+    return {
+      stageName,
+      daysAfterPlanting: STAGE_SCHEDULES[cropName]?.[index],
+      activities: source.flatMap((stage) => stage.activities || [])
+    };
+  });
+}
+
 const cropIsSupported = (crop) => SUPPORTED_CROPS.some((supported) => supported.toLowerCase() === String(crop || '').toLowerCase());
 const supportedCropsOnly = (crops) => (crops || []).filter(cropIsSupported);
 
@@ -89,9 +124,10 @@ function mapUpdatedAgriculturalKnowledge(dataset, sourceMap) {
     const references = nestedSourceDetails(sourceRecords, sourceMap);
     const plantingPeriod = crop.planting?.recommendedPeriod?.value || 'Effective-rain planting in the locally configured summer cropping window.';
     const growthStageValues = Array.isArray(crop.growthStages) ? crop.growthStages : Object.entries(crop.growthStages || {}).map(([stage, details]) => ({ ...details, stage }));
-    const stages = growthStageValues.map((stage) => ({
+    const cropName = crop.crop;
+    const stages = growthStageValues.map((stage, index) => ({
       stageName: stage.stage || stage.name || 'Unspecified',
-      daysAfterPlanting: stage.typicalDaysAfterPlanting,
+      daysAfterPlanting: stage.typicalDaysAfterPlanting || STAGE_SCHEDULES[cropName]?.[index],
       activities: (stage.activities || stage.actions || []).map((activity) => ({
         activityName: typeof activity === 'string' ? activity : activity.activity || activity.action || activity.name || 'Crop management activity',
         description: typeof activity === 'string' ? activity : activity.description || activity.action || '',
@@ -110,12 +146,12 @@ function mapUpdatedAgriculturalKnowledge(dataset, sourceMap) {
     const pestRecords = Array.isArray(crop.pests) ? crop.pests : (crop.pests?.majorPests || []);
     const soil = crop.soil || {};
     return {
-      cropName: crop.crop,
+      cropName,
       variety: crop.variety?.value || crop.variety || '',
       agroEcologicalRegion: crop.region || 'III',
       plantingPeriod,
       plantingWindow: crop.planting?.window || {},
-      growthStages: stages.map((stage) => ({ ...stage, activities: [...stage.activities, ...activities.filter((activity) => activity.timing === stage.stageName)] })),
+      growthStages: contextualizeStages(cropName, stages.map((stage) => ({ ...stage, activities: [...stage.activities, ...activities.filter((activity) => activity.timing === stage.stageName)] }))),
       fertiliserRecs: fertilizerRecords.length ? fertilizerRecords : asList(crop.fertilizer?.recommendations || crop.fertilizer).map((recommendation) => ({
         type: recommendation.type || 'Fertiliser', rateKgPerHa: parseRate(recommendation.rate || recommendation.rule), timing: recommendation.timing || crop.fertilizer?.applicationTiming || '', description: recommendation.value || recommendation.rate || recommendation.rule || ''
       })),
@@ -229,9 +265,9 @@ function mapAgriculturalKnowledge(dataset, sourceMap) {
       agroEcologicalRegion: 'III',
       plantingPeriod,
       plantingWindow: crop.planting?.window || {},
-      growthStages: (crop.stages || []).map((stage) => ({
+      growthStages: (crop.stages || []).map((stage, index) => ({
         stageName: stage,
-        daysAfterPlanting: undefined,
+        daysAfterPlanting: STAGE_SCHEDULES[cropName]?.[index] || undefined,
         activities: rules
           .filter((rule) => rule.stage === stage)
           .flatMap((rule) => rule.actions.map((action) => ({

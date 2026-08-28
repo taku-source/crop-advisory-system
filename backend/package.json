@@ -10,7 +10,7 @@
     "seed:agriculture": "node scripts/seed-agricultural-knowledge.js",
     "seed:soil": "node scripts/seed-soil-data.js",
     "seed:disease-knowledge": "node scripts/seed-disease-knowledge.js",
-    "seed:knowledge": "npm run seed:agriculture && npm run seed:soil && npm run seed:disease-knowledge",
+    "seed:knowledge": "npm run import:region3",
     "import:verified": "node scripts/import-verified-dataset.js",
     "import:region3": "node scripts/import-region3-dataset.js",
     "seed:demo": "node scripts/seed-demo-data.js"

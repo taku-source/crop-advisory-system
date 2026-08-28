@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Crop Advisory",
+    "slug": "crop-advisory",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#080c08",
+    "splash": {
+      "backgroundColor": "#080c08",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "zw.cropadvisory.app"
+    },
+    "android": {
+      "adaptiveIcon": { "backgroundColor": "#080c08" },
+      "package": "zw.cropadvisory.app",
+      "permissions": ["ACCESS_FINE_LOCATION", "RECEIVE_BOOT_COMPLETED", "VIBRATE"]
+    },
+    "plugins": [
+      ["expo-location", { "locationAlwaysAndWhenInUsePermission": "Crop Advisory uses your location to provide weather data and location-specific crop recommendations." }],
+      ["expo-notifications"]
+    ]
+  }
+}

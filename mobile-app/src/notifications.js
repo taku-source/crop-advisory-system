@@ -1,6 +1,9 @@
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { updateProfile } from './api';
+
+const isExpoGo = Constants.appOwnership === 'expo' || Constants.executionEnvironment === 'storeClient';
 
 // Configure how notifications appear when app is in foreground
 Notifications.setNotificationHandler({
@@ -16,43 +19,54 @@ Notifications.setNotificationHandler({
  * Call this once after the user logs in.
  */
 export async function registerForPushNotifications() {
-  // Check existing permissions
-  const { status: existing } = await Notifications.getPermissionsAsync();
-  let finalStatus = existing;
-
-  if (existing !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-
-  if (finalStatus !== 'granted') {
-    console.warn('Push notification permission not granted');
+  // Expo Go cannot provide Android FCM tokens. Use a development build for push testing.
+  if (isExpoGo) {
+    console.warn('Push registration is unavailable in Expo Go; use an Expo development build.');
     return null;
   }
 
-  // Android channel
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'Crop Advisory',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#2e7d32',
-    });
-  }
-
-  // Get the native token expected by Firebase Admin on the backend.
-  const tokenData = await Notifications.getDevicePushTokenAsync();
-  const fcmToken  = tokenData.data;
-
-  // Save to backend so admin can send targeted pushes
+  // Check existing permissions
   try {
-    await updateProfile({ fcmToken });
-    console.log('FCM token registered:', fcmToken);
-  } catch (err) {
-    console.warn('Could not save FCM token to server:', err.message);
-  }
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    let finalStatus = existing;
 
-  return fcmToken;
+    if (existing !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      console.warn('Push notification permission not granted');
+      return null;
+    }
+
+    // Android channel
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'Crop Advisory',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#2e7d32',
+      });
+    }
+
+    // Get the native token expected by Firebase Admin on the backend.
+    const tokenData = await Notifications.getDevicePushTokenAsync();
+    const fcmToken  = tokenData.data;
+
+    // Save to backend so admin can send targeted pushes
+    try {
+      await updateProfile({ fcmToken });
+      console.log('FCM token registered:', fcmToken);
+    } catch (err) {
+      console.warn('Could not save FCM token to server:', err.message);
+    }
+
+    return fcmToken;
+  } catch (error) {
+    console.warn('Push registration unavailable:', error.message);
+    return null;
+  }
 }
 
 /**
@@ -60,6 +74,8 @@ export async function registerForPushNotifications() {
  * Returns a cleanup function — call it in useEffect cleanup.
  */
 export function setupNotificationListeners(onNotification, onNotificationTap) {
+  if (isExpoGo) return () => {};
+
   const receivedSub = Notifications.addNotificationReceivedListener((notification) => {
     onNotification?.(notification);
   });

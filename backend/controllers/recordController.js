@@ -78,7 +78,8 @@ exports.createRecord = async (req, res) => {
     const record = await Record.create({ ...req.body, userId: req.user._id });
     res.status(201).json({ success: true, record });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    const status = err.name === 'ValidationError' ? 400 : 500;
+    res.status(status).json({ success: false, message: err.message });
   }
 };
 
@@ -93,7 +94,8 @@ exports.updateRecord = async (req, res) => {
     if (!record) return res.status(404).json({ success: false, message: 'Record not found' });
     res.json({ success: true, record });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    const status = err.name === 'ValidationError' ? 400 : 500;
+    res.status(status).json({ success: false, message: err.message });
   }
 };
 

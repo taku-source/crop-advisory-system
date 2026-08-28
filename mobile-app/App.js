@@ -9,7 +9,8 @@ import { FarmProfileProvider } from './src/context/FarmProfileContext';
 import Logo from './src/components/Logo';
 import LoginScreen    from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
-import DashboardScreen         from './src/screens/DashboardScreen';
+import WelcomeScreen  from './src/screens/WelcomeScreen';
+import DashboardScreen         from './src/screens/DesignedDashboardScreen';
 import AdvisoryListScreen      from './src/screens/AdvisoryListScreen';
 import DiseaseIdentifierScreen from './src/screens/DiseaseIdentifierScreen';
 import RecordsScreen           from './src/screens/RecordsScreen';
@@ -69,7 +70,7 @@ function RootNavigator() {
       {user ? (user.role !== 'admin' && !user.hasSelectedCrop && !user.primaryCrop
         ? <Stack.Screen name="CropSelection" component={CropSelectionScreen} />
         : <Stack.Screen name="Main" component={FarmerTabs} />)
-             : <><Stack.Screen name="Login" component={LoginScreen} /><Stack.Screen name="Register" component={RegisterScreen} /></>}
+             : <><Stack.Screen name="Welcome" component={WelcomeScreen} /><Stack.Screen name="Login" component={LoginScreen} /><Stack.Screen name="Register" component={RegisterScreen} /></>}
     </Stack.Navigator>
   );
 }

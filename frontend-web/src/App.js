@@ -15,6 +15,7 @@ import FarmerNotificationsPage from './pages/FarmerNotificationsPage';
 import FarmerKnowledgePage from './pages/FarmerKnowledgePage';
 import CropSelectionPage from './pages/CropSelectionPage';
 import { ReportsPage, KnowledgePage } from './pages/ReportsKnowledgePages';
+import AdminDesignShell from './components/AdminDesignShell';
 
 const featureCards = [
   {
@@ -452,7 +453,7 @@ const NAV = [
 
 const PAGE_TITLES = { dashboard: 'Dashboard', farmers: 'Farmer Management', advisories: 'Seasonal Advisories', diseases: 'Disease Database', notifications: 'Notifications', reports: 'Reports & Analytics', knowledge: 'Knowledge Base' };
 
-function AdminLayout() {
+function LegacyAdminLayout() {
   const { user, logout } = useAuth();
   const [page, setPage] = useState('dashboard');
 
@@ -506,6 +507,27 @@ function AdminLayout() {
         </div>
       </div>
     </div>
+  );
+}
+
+function AdminLayout() {
+  const { user, logout } = useAuth();
+  const [page, setPage] = useState('dashboard');
+  const pages = {
+    dashboard: <DashboardPage />,
+    farmers: <FarmersPage />,
+    advisories: <AdvisoriesPage />,
+    diseases: <DiseasesPage />,
+    notifications: <NotificationsPage />,
+    reports: <ReportsPage />,
+    knowledge: <KnowledgePage />,
+    soil: <KnowledgePage />,
+  };
+
+  return (
+    <AdminDesignShell page={page} onNavigate={setPage} user={user} title={{ dashboard: 'Dashboard', farmers: 'Farmer Management', advisories: 'Seasonal Advisories', diseases: 'Disease Database', notifications: 'Notifications', reports: 'Reports & Analytics', knowledge: 'Knowledge Base', soil: 'Soil Knowledge' }[page]} onLogout={logout}>
+      {pages[page] || pages.dashboard}
+    </AdminDesignShell>
   );
 }
 

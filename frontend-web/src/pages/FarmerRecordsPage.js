@@ -2,13 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getRecords, createRecord, updateRecord, deleteRecord, getRecordSummary } from '../api';
 import { PageHeader, SearchBar, Button, Chip, Modal, Field, Input, Textarea, Select, toast } from '../components/UI';
 
-const CATEGORIES = ['Planting', 'Fertilizer', 'Pesticide', 'Harvest', 'Expense'];
+const CATEGORIES = ['Planting', 'Fertilizer', 'Pesticide', 'Harvest', 'Expense', 'Crop Progress'];
 const CATEGORY_FIELDS = {
   Planting:   [{ key: 'crop', label: 'Crop *' }, { key: 'variety', label: 'Variety' }, { key: 'area', label: 'Area' }],
   Fertilizer: [{ key: 'productName', label: 'Fertilizer Type *' }, { key: 'quantity', label: 'Quantity' }],
   Pesticide:  [{ key: 'productName', label: 'Chemical/Product *' }, { key: 'quantity', label: 'Quantity' }],
   Harvest:    [{ key: 'crop', label: 'Crop *' }, { key: 'quantityHarvested', label: 'Quantity Harvested *' }],
   Expense:    [{ key: 'item', label: 'Item/Description *' }, { key: 'cost', label: 'Cost (USD) *' }],
+  'Crop Progress': [{ key: 'crop', label: 'Crop *' }, { key: 'growthStage', label: 'Growth Stage *' }, { key: 'progressPercent', label: 'Progress (%)' }, { key: 'plantHeight', label: 'Plant Height' }, { key: 'observedIssues', label: 'Observed Issues' }],
 };
 
 export default function FarmerRecordsPage() {
@@ -138,6 +139,10 @@ export default function FarmerRecordsPage() {
               {record.productName && <div><strong>Product:</strong> {record.productName}</div>}
               {record.quantity && <div><strong>Quantity:</strong> {record.quantity}</div>}
               {record.quantityHarvested && <div><strong>Harvested:</strong> {record.quantityHarvested}</div>}
+              {record.growthStage && <div><strong>Growth stage:</strong> {record.growthStage}</div>}
+              {record.progressPercent != null && <div><strong>Progress:</strong> {record.progressPercent}%</div>}
+              {record.plantHeight && <div><strong>Plant height:</strong> {record.plantHeight}</div>}
+              {record.observedIssues && <div><strong>Observed issues:</strong> {record.observedIssues}</div>}
               {record.item && <div><strong>Item:</strong> {record.item}</div>}
               {record.cost != null && <div><strong>Cost:</strong> ${record.cost}</div>}
               {record.notes && <div><strong>Notes:</strong> {record.notes}</div>}

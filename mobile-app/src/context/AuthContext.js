@@ -1,9 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { login as apiLogin, register as apiRegister, getMe } from '../api';
-import { registerForPushNotifications } from '../notifications';
 
 const AuthContext = createContext();
+const isExpoGo = Constants.appOwnership === 'expo' || Constants.executionEnvironment === 'storeClient';
+
+const registerPushNotifications = () => {
+  if (isExpoGo) return Promise.resolve(null);
+  return import('../notifications').then(({ registerForPushNotifications }) => registerForPushNotifications());
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser]       = useState(null);
@@ -19,7 +25,7 @@ export const AuthProvider = ({ children }) => {
           setToken(storedToken);
           const res = await getMe();
           setUser(res.data.user);
-          registerForPushNotifications().catch(() => {});
+          registerPushNotifications().catch(() => {});
         }
       } catch {
         await AsyncStorage.removeItem('token');
@@ -34,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.setItem('token', res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);
-    registerForPushNotifications().catch(() => {});
+    registerPushNotifications().catch(() => {});
     return res.data;
   };
 
@@ -43,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.setItem('token', res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);
-    registerForPushNotifications().catch(() => {});
+    registerPushNotifications().catch(() => {});
     return res.data;
   };
 

@@ -2,7 +2,7 @@ const AgriculturalKnowledge = require('../models/AgriculturalKnowledge');
 const SoilData = require('../models/SoilData');
 const Advisory = require('../models/Advisory');
 const nasaPowerService = require('../services/nasaPowerService');
-const { isSupportedCrop } = require('../config/supportedCrops');
+const { canonicalCrop, isSupportedCrop } = require('../config/supportedCrops');
 
 class AdvisoryRuleEngine {
   /**
@@ -13,15 +13,16 @@ class AdvisoryRuleEngine {
   async generateContextualAdvisories(farmer) {
     try {
       // Validate farmer has required fields
-      if (!(farmer.primaryCrop || farmer.primaryCrops?.[0])) {
+      const selectedCrop = canonicalCrop(farmer.primaryCrop || farmer.primaryCrops?.[0]);
+      if (!selectedCrop) {
         throw new Error('Farmer must have a primary crop selected');
       }
-      if (!isSupportedCrop(farmer.primaryCrop || farmer.primaryCrops[0])) {
+      if (!isSupportedCrop(selectedCrop)) {
         throw new Error('Farmer crop is outside the supported seven-crop scope');
       }
 
       // Step 1: Get agricultural knowledge for farmer's crop
-      const cropKnowledge = await this.getCropKnowledge(farmer.primaryCrop || farmer.primaryCrops[0], 'III');
+      const cropKnowledge = await this.getCropKnowledge(selectedCrop, 'III');
       if (!cropKnowledge) {
         return [];  // No knowledge available for this crop
       }
@@ -122,10 +123,12 @@ class AdvisoryRuleEngine {
     }
 
     // Rule 2: Fertiliser recommendations based on stage
-    if (currentStage === 'vegetative' || currentStage === 'flowering') {
+    const stageText = currentStage.toLowerCase();
+    if (stageText.includes('vegetative') || stageText.includes('flowering') || stageText.includes('squaring')) {
       const fertiliserRecs = cropKnowledge.fertiliserRecs || [];
       for (const rec of fertiliserRecs) {
-        if (rec.timing && rec.timing.toLowerCase().includes(currentStage)) {
+        const timing = rec.timing?.toLowerCase() || '';
+        if (timing && stageText.split(/\s+/).some((word) => word.length > 4 && timing.includes(word))) {
           const advisory = {
             crop: farmer.primaryCrop,
             activity: `Fertiliser Application - ${rec.type}`,
@@ -159,7 +162,7 @@ class AdvisoryRuleEngine {
     }
 
     // Rule 5: Pest and disease prevention (especially important in certain stages)
-    if (currentStage === 'vegetative' || currentStage === 'flowering') {
+    if (stageText.includes('vegetative') || stageText.includes('flowering') || stageText.includes('squaring')) {
       const pestAdvisories = this.getPestDiseaseAdvisories(cropKnowledge, currentStage);
       advisories.push(...pestAdvisories);
     }

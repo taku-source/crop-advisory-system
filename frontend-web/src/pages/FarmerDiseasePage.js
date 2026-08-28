@@ -5,6 +5,7 @@ import { PageHeader, Button, Input, Select, toast, Chip } from '../components/UI
 export default function FarmerDiseasePage() {
   const [crop, setCrop] = useState('');
   const [symptoms, setSymptoms] = useState([]);
+  const [customSymptom, setCustomSymptom] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [diseases, setDiseases] = useState([]);
@@ -33,6 +34,13 @@ export default function FarmerDiseasePage() {
 
   const toggleSymptom = (symptom) => {
     setSymptoms((prev) => prev.includes(symptom) ? prev.filter((item) => item !== symptom) : [...prev, symptom]);
+  };
+
+  const addCustomSymptom = () => {
+    const value = customSymptom.trim();
+    if (!value) return;
+    toggleSymptom(value);
+    setCustomSymptom('');
   };
 
   const handleIdentify = async () => {
@@ -72,6 +80,16 @@ export default function FarmerDiseasePage() {
                     </button>
                   );
                 })}
+              </div>
+              <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                <Input
+                  value={customSymptom}
+                  onChange={(e) => setCustomSymptom(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSymptom(); } }}
+                  placeholder="Describe another symptom"
+                  aria-label="Describe another symptom"
+                />
+                <Button variant="secondary" onClick={addCustomSymptom} disabled={!customSymptom.trim()}>Add</Button>
               </div>
             </div>
 
